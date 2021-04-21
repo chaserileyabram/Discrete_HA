@@ -9,7 +9,7 @@ close all;
 % SET OPTIONS
 % -------------------------------------------------------------------------
 % options
-runopts.calibrate = false; % wrap code in nonlinear solver
+runopts.calibrate = true; % wrap code in nonlinear solver
 runopts.fast = true; % very small asset and income grids for testing
 runopts.Simulate = false; % also solve distribution via simulation
 runopts.MakePlots = false; % not used
