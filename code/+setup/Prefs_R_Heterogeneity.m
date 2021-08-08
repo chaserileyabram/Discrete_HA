@@ -138,7 +138,7 @@ classdef Prefs_R_Heterogeneity < handle
 
 		        if isempty(params.zdist_forced) && (switch_prob > 0)
 					obj.zdist = aux.ergodicdist(obj.ztrans);
-				elseif switch_prob == 0
+				elseif isempty(params.zdist_forced)
 					obj.zdist = ones(obj.nz, 1) / obj.nz;
 				end
 		    end

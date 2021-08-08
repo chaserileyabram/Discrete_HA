@@ -12,6 +12,7 @@ function [params, all_names] = parameters(runopts)
     % Statistics from the 2019 SCF
     scf = setup.scf2019struct();
     shared_params.numeraire_in_dollars = scf.annual_earnings;
+    shared_params.abars = [1000, 2000, 3000]  / scf.annual_earnings;
 
     mean_totw_target = scf.mean_totw / scf.annual_earnings;
 
@@ -206,25 +207,25 @@ function [params, all_names] = parameters(runopts)
     end
     
     % interest rate heterogeneity
-    name = 'Permanent r het, r in {0,2,4} p.a.';
+    name = 'Permanent r het, r in {-1,1,3} p.a.';
     params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
-    params(end).r = [0, 2, 4] / 100;
+    params(end).r = [-1, 1, 3] / 100;
     params(end).betaH0 = -1e-4;
     params(end).beta0 = 0.973149481985717;
     params(end).group = {'Q6'};
-    params(end).descr = 'r in {0, 2, 4}';
+    params(end).descr = 'r in {-1, 1, 3}';
     params(end).tex_header = 'r';
-    params(end).tex_header_values.r = '0, 0.02, 0.04';
+    params(end).tex_header_values.r = '-0.01, 0.01, 0.03';
     
-    name = 'Permanent r het, r in {-2,2,6} p.a.';
+    name = 'Permanent r het, r in {-3,1,5} p.a.';
     params(end+1) = setup.Params(ifreq,name, quarterly_b_params);
-    params(end).r = [-2, 2, 6] / 100;
+    params(end).r = [-3, 1, 5] / 100;
     params(end).betaH0 = 1e-3;
     params(end).beta0 = 0.960885729527277;
     params(end).group = {'Q6'};
-    params(end).descr = 'r in {-2,2,6}';
+    params(end).descr = 'r in {-3,1,5}';
     params(end).tex_header = 'r';
-    params(end).tex_header_values.r = '-0.02, 0.02, 0.06';
+    params(end).tex_header_values.r = '-0.03, 0.01, 0.05';
 
 
 %         % different tax rates
@@ -264,6 +265,22 @@ function [params, all_names] = parameters(runopts)
             params(end).betaH0 = 1e-3;
         end
     end
+
+    % fixed beta het w/normal
+    ibw = 0.01;
+    name = sprintf('Beta5, pSwitch0 (normal), pSpacing%g', ibw);
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).nbeta = 5;
+    params(end).betawidth = ibw;
+    params(end).prob_zswitch = 0;
+    params(end).beta0 = 0.956194383870642;
+    params(end).zdist_forced = [0.1, 0.2, 0.4, 0.2, 0.1];
+    % params(end).group = {'Q2'};
+    params(end).descr = sprintf('p = %g, normal, spacing = %g', 0, ibw);
+    params(end).tex_header = '$\beta$ het.';
+    params(end).tex_header_values.pswitch = 0;
+    params(end).tex_header_values.spacing = ibw;
+    params(end).betaH0 = 1e-2;
 
     % random beta heterogeneity
     for ibw = [0.01]
@@ -328,6 +345,17 @@ function [params, all_names] = parameters(runopts)
     params(end).tex_header = 'CRRA';
     params(end).tex_header_values.riskaver = 'exp(-2), ..., exp(2)';
 
+    name = 'CRRA w/IES betw exp(-3), exp(3)';
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).risk_aver = 1 ./ exp([-3 -1.5 0 1.5 3]);
+    if params(end).freq == 4
+        params(end).betaH0 = -1e-3;
+    end
+    params(end).group = {'Q3'};
+    params(end).descr = 'RA = exp(3), ..., exp(-3), IES = exp(-3), ..., exp(3)';
+    params(end).tex_header = 'CRRA';
+    params(end).tex_header_values.riskaver = 'exp(-3), ..., exp(3)';
+
     % epstein-zin, quarterly
     ras = [0.5 8  1    1]; % 8
     ies = [1   1  0.25 2]; % 2
@@ -387,6 +415,19 @@ function [params, all_names] = parameters(runopts)
     params(end).tex_header_values.riskaver = 1;
     params(end).tex_header_values.ies = 'exp(-2), ..., exp(2)';
 
+    name = 'EZ w/ IES betw exp(-3), exp(3)';
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).invies = 1 ./ exp([-3 -1.5 0 1.5 3]);
+    params(end).EpsteinZin = true;
+    if (ifreq == 4)
+        params(end).betaH0 = - 3e-3;
+    end
+    params(end).group = {'Q4'};
+    params(end).descr = 'RA = 1, IES = exp(-3), ..., exp(3)';
+    params(end).tex_header = 'EZ';
+    params(end).tex_header_values.riskaver = 1;
+    params(end).tex_header_values.ies = 'exp(-3), ..., exp(3)';
+
     % EZ with risk aversion heterogeneity
     name = 'EZ w/ RA betw exp(-2), exp(2)';
     params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
@@ -401,6 +442,20 @@ function [params, all_names] = parameters(runopts)
     params(end).tex_header = 'EZ';
     params(end).tex_header_values.ies = 1;
     params(end).tex_header_values.riskaver = 'exp(-2), ..., exp(2)';
+
+    name = 'EZ w/ RA betw exp(-3), exp(3)';
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).invies = 1;
+    params(end).risk_aver = exp([-3 -1.5 0 1.5 3]);
+    params(end).EpsteinZin = 1;
+    params(end).betaH0 = - 1e-3;
+    params(end).betaL = 0.96;
+    params(end).beta0 = 0.999349 ^ 4;
+    params(end).group = {'Q4'};
+    params(end).descr = 'RA = exp(-3), ..., exp(3), IES = 1';
+    params(end).tex_header = 'EZ';
+    params(end).tex_header_values.ies = 1;
+    params(end).tex_header_values.riskaver = 'exp(-3), ..., exp(3)';
 
     % temptation
     for tempt = [0.01 0.05 0.07]

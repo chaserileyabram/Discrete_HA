@@ -10,11 +10,11 @@ close all;
 % -------------------------------------------------------------------------
 % options
 runopts.calibrate = true; % wrap code in nonlinear solver
-runopts.fast = true; % very small asset and income grids for testing
+runopts.fast = false; % very small asset and income grids for testing
 runopts.Simulate = false; % also solve distribution via simulation
-runopts.MakePlots = false; % not used
+runopts.MakePlots = false;
 runopts.MPCs = true;
-runopts.MPCs_news = false;
+runopts.MPCs_news = true;
 runopts.MPCs_loan_and_loss = false;
 runopts.DeterministicMPCs = true; % must be on if decompositions are needed
 runopts.SaveOutput = true;
@@ -23,7 +23,7 @@ runopts.SaveOutput = true;
 runopts.mode = 'parameters'; % 'parameters'
 
 % select experiment (ignored when run on server)
-runopts.name_to_run = 'Annual, Carrol'; % ''
+runopts.name_to_run = sprintf('Beta5, pSwitch0 (normal), pSpacing%g', 0.01); % ''
 runopts.number = []; % []
 
 %% ------------------------------------------------------------------------
@@ -87,3 +87,40 @@ fprintf('Finished parameterization %s\n', params.name)
 % -------------------------------------------------------------------------
 table_out = tables.OutputTable(params, results.stats)
 writetable(table_out, runopts.savexlxpath, 'WriteRowNames', true);
+
+%% ------------------------------------------------------------------------
+% FIGURES
+% -------------------------------------------------------------------------
+if runopts.MakePlots
+    mkdir('output/figures')
+    if strcmp(params.name, 'Quarterly')
+        % Quarterline baseline
+        statistics.DHAPlots.consumption_wealth_overlay(results.stats, params);
+        figpath = fullfile('output', 'baseline_quarterly_c_x_overlay.jpg');
+        saveas(gcf, figpath)
+        
+        statistics.DHAPlots.mpc_function(results.stats, 'mpc_type', 'period');
+        figpath = fullfile('output', 'baseline_quarterly_period_mpcs.jpg');
+        saveas(gcf, figpath)
+        
+        statistics.DHAPlots.mpc_function(results.stats, 'mpc_type', 'cumulative');
+        figpath = fullfile('output', 'baseline_quarterly_cumulative_mpcs.jpg');
+        saveas(gcf, figpath)
+    elseif params.nbeta > 1
+        statistics.DHAPlots.consumption_wealth_overlay(results.stats, params,...
+            'curve_variable', 'beta');
+        figpath = fullfile('output', 'fixed_beta_heterogeneity_c_x_overlay.jpg');
+        saveas(gcf, figpath)
+    elseif numel(params.r) > 1
+        statistics.DHAPlots.consumption_wealth_overlay(results.stats, params,...
+            'curve_variable', 'r');
+        figpath = fullfile('output', 'fixed_returns_heterogeneity_c_x_overlay.jpg');
+        saveas(gcf, figpath)
+    elseif numel(params.risk_aver) > 1
+        statistics.DHAPlots.consumption_wealth_overlay(results.stats, params,...
+            'curve_variable', 'crra');
+        figpath = fullfile('output', 'fixed_ies_heterogeneity_c_x_overlay.jpg');
+        saveas(gcf, figpath)
+    end
+end
+        

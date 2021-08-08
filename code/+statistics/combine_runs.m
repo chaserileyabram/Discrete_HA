@@ -36,8 +36,9 @@ for irun = 1:999
 
         S = load(fpath);
         params(ind) = S.Sparams;
-        results(ind) = S.results;
+        heterogeneity(ind) = S.heterogeneity;
         stats{ind} = S.results.stats;
+        results(ind) = S.results;
     end
 end
 
@@ -45,6 +46,12 @@ if (ind == 0)
     error('No mat files found')
 end
 
+% Parameters table
+ptable = tables.param_tables(params, heterogeneity);
+panelfpath = fullfile('output', 'params_table.xlsx');
+writetable(ptable, panelfpath, 'WriteRowNames', true);
+
+% Stats table
 for ip = 1:ind
     if params(ip).freq == 1
         baseind = find(ismember({params.name}, {'Annual'}));
