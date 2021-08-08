@@ -368,7 +368,7 @@ classdef MPCFinder < handle
 
 			if (ii == is - 1) && (p.shocks(ishock) < 0)
 				adj_borr_lim = (obj.p.borrow_lim - p.shocks(ishock) - obj.income.minnety);
-				adj_borr_lim = shiftdim(adj_borr_lim ./ (1 + obj.r_mat), -3);
+				adj_borr_lim = adj_borr_lim ./ (1 + obj.r_mat);
 			else
 		        adj_borr_lim = p.borrow_lim;
 		    end

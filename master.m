@@ -23,7 +23,7 @@ runopts.SaveOutput = true;
 runopts.mode = 'parameters'; % 'parameters'
 
 % select experiment (ignored when run on server)
-runopts.name_to_run = sprintf('Beta5, pSwitch0 (normal), pSpacing%g', 0.01); % ''
+runopts.name_to_run = ''; % ''
 runopts.number = []; % []
 
 %% ------------------------------------------------------------------------
