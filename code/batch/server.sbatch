@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=disc
-#SBATCH --output=/home/livingstonb/GitHub/Discrete_HA/output/run%a.out
-#SBATCH --error=/home/livingstonb/GitHub/Discrete_HA/output/run%a.err
+#SBATCH --output=/home/livingstonb/GitHub/Discrete_HA-brian-fork/output/run%a.out
+#SBATCH --error=/home/livingstonb/GitHub/Discrete_HA-brian-fork/output/run%a.err
 #SBATCH --partition=broadwl
 #SBATCH --time=12:00:00
 #SBATCH --array=1-52
@@ -11,4 +11,4 @@
 
 module load matlab/2019b
 
-matlab -nodisplay < /home/livingstonb/GitHub/Discrete_HA/master.m
+matlab -nodisplay < /home/livingstonb/GitHub/Discrete_HA-brian-fork/master.m

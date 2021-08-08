@@ -24,7 +24,7 @@ combine :
 
 # Download results from server -- make sure to change spath as needed!
 # (run this after running 'make combine' on the server)
-spath := "$$MW:/home/livingstonb/GitHub/Discrete_HA/output/tables*"
+spath := "$$MW:/home/livingstonb/GitHub/Discrete_HA-brian-fork/output/tables*"
 cdate := $(shell date +"%m-%d-%Y-%T")
 download :
 	-mkdir -p output/server-$(cdate)
