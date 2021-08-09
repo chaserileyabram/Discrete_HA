@@ -77,7 +77,7 @@ classdef MPCFinder < handle
 					sprintf('Median one-period MPC (%%), out of %s',...
 						shock_label));
 
-                obj.mpcs(ishock).quarterly_htm_biweekly = sfill(NaN,...
+                obj.mpcs(ishock).quarterly_htm_biw = sfill(NaN,...
 					sprintf('Quarterly HtM1 MPC (%%), out of %s', shock_label), 1,...
 		    		sprintf('Quarterly MPC\textsuperscript{$\\dagger$} (\\%%), out of %s', shock_label_tex));
 
@@ -246,11 +246,15 @@ classdef MPCFinder < handle
                 mpcsvec = mpcs(:);
 
            		% Conditional on HtM (own biweekly inc)
-       %     		qinc = obj.income.netymat_broadcast  * (obj.p.freq / 4);
-       %     		htm_biweekly =  (obj.grids.a.vec ./ qinc) <= (1 / 6);
+           		qinc = obj.income.netymat_broadcast  * (obj.p.freq / 4);
+           		htm_biw =  (obj.grids.a.vec ./ qinc) <= (1 / 6);
+
+           		if obj.p.nz > size(htm_biw, 4)
+           			htm_biw = repmat(htm_biw, [1 1 1 obj.p.nz 1]);
+           		end
            		
-       %     		[n1, n2, n3, n4] = size(obj.basemodel.pmf);
-       %     		dims1 = [n1, n2, n3, n4];
+           		% [n1, n2, n3, n4] = size(obj.basemodel.pmf);
+           		% dims1 = [n1, n2, n3, n4];
 			    % [n1, n2, n3, n4] = size(htm_biweekly);
 			    % dims0 = [n1, n2, n3, n4];
 			    % dims1(dims1 == dims0) = 1;
@@ -260,6 +264,15 @@ classdef MPCFinder < handle
        %     		dist_htm_biweekly = dist_htm_biweekly(htm_biweekly(:));
        %     		dist_htm_biweekly = dist_htm_biweekly / sum(dist_htm_biweekly);
        %     		mpc_htm_biweekly = dot(dist_htm_biweekly, mpcsvec(htm_biweekly(:)));
+
+      			% Conditional on HtM (biweekly)
+      			dist_vec_yT = dist_vec * shiftdim(obj.income.yTdist, -1);
+      			dist_vec_yT = dist_vec_yT(:);
+      			dist_vec_htm_biw = dist_vec_yT(htm_biw(:));
+      			dist_vec_htm_biw = dist_vec_htm_biw / sum(dist_vec_htm_biw);
+      			mpc_htm_yT = repmat(mpcsvec, [1 obj.p.nyT]);
+      			mpc_htm_yT = mpc_htm_yT(:);
+      			mpc_htm_biw = dot(dist_vec_htm_biw, mpc_htm_yT(htm_biw(:)));
 
            		% Conditional on HtM (a <= $1000)
            		htm_a_lt_1000 =  obj.grids.a.vec <= 1000 / obj.p.numeraire_in_dollars;
@@ -287,8 +300,9 @@ classdef MPCFinder < handle
                     obj.mpcs(ishock).mpc0(shockperiod,it) = mpc0;
                     obj.mpcs(ishock).median(shockperiod,it) = mpc_median;
 
-                    if (it == 1) && (obj.p.freq == 4)
+                    if (it == 1) && (obj.p.freq == 4) && (shockperiod == 1)
 	                    % obj.mpcs(ishock).quarterly_htm_biweekly.value = mpc_htm_biweekly;
+	                    obj.mpcs(ishock).quarterly_htm_biw.value = 100 * mpc_htm_biw;
 	                    obj.mpcs(ishock).quarterly_htm_a_lt_1000.value = 100 * mpc_htm_a_lt_1000;
 	                end
 	            elseif shockperiod == 9

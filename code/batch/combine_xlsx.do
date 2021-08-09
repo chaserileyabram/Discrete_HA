@@ -3,7 +3,7 @@ clear
 
 cd D:\
 cd GitHub/Discrete_HA-brian-fork/output
-cd tables_7_26_21
+// cd tables_7_26_21
 
 tempfile newtable
 

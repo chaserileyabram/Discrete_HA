@@ -63,6 +63,7 @@ def other_panel(dirpath, table, panel, panelname):
 
 	df = pd.read_excel(filepath, index_col=0, header=0)
 	df = apply_float_formatting(df)
+
 	colfmt = 'l'
 	for ic in range(len(df.columns)):
 		colfmt += 'c'
@@ -98,9 +99,9 @@ def save_tex_table(dirpath, tableno):
 		]
 	elif tableno == 2:
 		panel_args = [
-			['A', 'Decomposition of Mean MPC, around $$1000$'],
-			['B', 'Decomposition of Mean MPC, around $$2000$'],
-			['C', 'Decomposition of Mean MPC, around $$3000$'],
+			['A', 'Decomposition of Mean MPC, around \$1000'],
+			['B', 'Decomposition of Mean MPC, around \$2000'],
+			['C', 'Decomposition of Mean MPC, around \$3000'],
 			['D', 'Decomposition of Mean MPC - MPC$_{RA}$'],
 		]
 	else:
@@ -124,6 +125,7 @@ def save_tex_table(dirpath, tableno):
 
 if __name__ == '__main__':
 	dirpath = sys.argv[1]
+	pd.set_option('display.max_colwidth',1000)
 
 	for it in range(1, 13):
 		save_tex_table(dirpath, it)
