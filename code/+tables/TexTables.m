@@ -1,63 +1,41 @@
 classdef TexTables
     
     properties (Constant)
-        table_includes = {
-            {'Baseline'}
-            {'Baseline'}
-            {'Q1a'}
-            {'Q1b'}
-            {'Q1c'}
-            {'Q2'}
-            {'Q3'}
-            {'Q4'}
-            {'Q5'}
-            {'Q6'}
-            {'Q7'}
-            {'Q8'}
-        };
+        table_includes;
     end
 
     methods (Static)
         function [n, labels, vars, decimals] = get_header_variables(table_group)
             decimals = [];
 
-            if strcmp(table_group, 'Q1a')
-                labels = {'Value'};
-                vars = {'value'};
-                decimals = [2];
-            elseif strcmp(table_group, 'Q1b')
+            if tableno == 1
                 labels = {'Value'};
                 vars = {'value'};
                 decimals = [3];
-            elseif strcmp(table_group, 'Q1c')
+            elseif tableno == 2
+                labels = {'Value'};
+                vars = {'value'};
+                decimals = [2];
+            elseif tableno == 3
+                labels = {'Beta Spacing', 'r', 'Switching Probability'};
+                vars = {'betawidth', 'r', 'prob_zswitch'};
+            elseif tableno == 4
+                labels = {'Risk Aversion', 'IES', 'Temptation'};
+                vars = {'riskaver', 'ies', 'tempt'};
+                decimals = [2, 3, 2];
+            elseif tableno == -1
                 labels = {};
                 vars = {};
-            elseif strcmp(table_group, 'Q2')
-                labels = {'Switching Probability', 'Spacing'};
-                vars = {'pswitch', 'spacing'};
-                decimals = [2, 3];
-            elseif strcmp(table_group, 'Q3')
-                labels = {'Risk aversion'};
-                vars = {'riskaver'};
-                decimals = 2;
-            elseif strcmp(table_group, 'Q4')
-                labels = {'Risk aversion', 'IES'};
+            elseif tableno == -2
+                labels = {};
+                vars = {};
+            elseif tableno == -3
+                labels = {'Description'};
+                vars = {'descr'};
+            elseif tableno == -4
+                labels = {'Risk Aversion', 'IES'};
                 vars = {'riskaver', 'ies'};
-                decimals = [2, 3];
-            elseif strcmp(table_group, 'Q5')
-                labels = {'Temptation'};
-                vars = {'tempt'};
-                decimals = 3;
-            elseif strcmp(table_group, 'Q6')
-                labels = {'r'};
-                vars = {'r'};
-                decimals = 3;
-            elseif strcmp(table_group, 'Q7')
-                labels = {'Description'};
-                vars = {'descr'};
-            elseif strcmp(table_group, 'Q8')
-                labels = {'Description'};
-                vars = {'descr'};
+                decimals = [2, 2];
             end
 
             n = numel(labels);
@@ -89,10 +67,11 @@ classdef TexTables
 
         function save_experiment_table(params_in, results, comparison_decomps, dirpath, tableno)
             header = tables.TexTables.experiment_table_header(params_in, results, tableno);
-            headerpath = fullfile(dirpath, sprintf('table%d_header.xlsx', tableno));
+            tabcapnum = tablecnum(tableno);
+            headerpath = fullfile(dirpath, sprintf('table%d_header.xlsx', tabcapnum));
             writetable(header, headerpath, 'WriteRowNames', true);
 
-            for panelname = {'A', 'A2', 'B', 'C', 'D'}
+            for panelname = {'A', 'B', 'C', 'D'}
             	if ismember(panelname{:}, {'A', 'A2'})
             		panelobj = tables.TexTables.experiment_table_panel(...
             			params_in, comparison_decomps, panelname{:}, tableno);
@@ -100,7 +79,7 @@ classdef TexTables
             		panelobj = tables.TexTables.experiment_table_panel(...
             			params_in, results, panelname{:}, tableno);
             	end
-            	panelfname = sprintf('table%d_panel%s.xlsx', tableno, panelname{:});
+            	panelfname = sprintf('table%d_panel%s.xlsx', tabcapnum, panelname{:});
             	panelfpath = fullfile(dirpath, panelfname);
             	writetable(panelobj, panelfpath, 'WriteRowNames', true);
             end
@@ -203,16 +182,14 @@ classdef TexTables
         end
 
         function table_out = experiment_table_header(params_in, results, tableno)
-            table_group = tables.TexTables.table_includes{tableno};
-            indices = filter_param_group(params_in, table_group);
+            indices = filter_param_group(params_in, tableno);
 
             import statistics.Statistics.sfill
 
             [nhvars, hlabels, hvars, hdecimals] = tables.TexTables.get_header_variables(table_group);
 
             all_annual = true;
-            for ii = 1:numel(indices)
-                ip = indices(ii);
+            for ip = indices
                 if params_in(ip).freq == 4
                     all_annual = false;
                     break
@@ -248,11 +225,9 @@ classdef TexTables
         end
 
         function table_out = experiment_table_panel(params_in, variables, panel, tableno)
-            table_group = tables.TexTables.table_includes{tableno};
-            indices = filter_param_group(params_in, table_group);
+            indices = filter_param_group(params_in, tableno);
             all_annual = true;
-            for ii = 1:numel(indices)
-                ip = indices(ii);
+            for ii = indices
                 if params_in(ip).freq == 4
                     all_annual = false;
                     break
@@ -281,14 +256,13 @@ classdef TexTables
 	           		get_stats = @(x) {
 	           			x.stats.mean_a
                         x.stats.median_a
-	                    x.stats.sav0
-	                    x.stats.constrained{1}
+	                    x.stats.a_lt_ysixth
 	                    x.stats.constrained_dollars{1}
 	                    x.stats.constrained_dollars{2}
 	                    x.stats.constrained_dollars{3}
 	                    x.stats.constrained_dollars{4}
-	                    x.stats.a_lt_ysixth
-	                    x.stats.a_lt_ytwelfth
+	                    x.stats.constrained_dollars{5}
+                        x.stats.constrained_dollars{6}
 	                    x.stats.w_top10share
 	                    x.stats.w_top1share
 	                    x.stats.wgini
@@ -327,23 +301,28 @@ classdef TexTables
     end 
 end
 
-function indices = filter_param_group(params_in, includes)
-    indices = [];
+function tnum = tablecnum(tableno)
+    if tableno < 0
+        tnum = sprintf('A%d', abs(tableno));
+    else
+        tnum = sprintf('%d', tableno);
+    end
+end
+
+function indices = filter_param_group(params_in, tableno)
+    ips = [];
+    colnums = [];
     jj = 1;
     for ii = 1:numel(params_in)
-        keep = false;
-        for kk = 1:numel(params_in(ii).group)
-            if ismember(params_in(ii).group{kk}, includes)
-                keep = true;
-                break;
-            end
-        end
-
-        if keep
-            indices(jj) = ii;
-            jj = jj + 1;
+        if ismember(tableno, params_in(ii).group)
+            idx = find(tableno == params_in(ii).group);
+            colnums = [colnums, params_in(ii).colnums(idx)];
+            ips = [ips, ii];
         end
     end
+
+    sorted_mat = sortrows(colnums(:), ips(:));
+    indices = reshape(sorted_mat(:,2), 1, []);
 end
 
 function [stats_array, names_array] = stack_results(tableno, fn_handle, params_in, main_results, varargin)
@@ -354,24 +333,31 @@ function [stats_array, names_array] = stack_results(tableno, fn_handle, params_i
     experiment = parser.Results.experiment;
     ctimeresults = parser.Results.ctimeresults;
 
-    indices = filter_param_group(params_in, tables.TexTables.table_includes{tableno});
+    indices = filter_param_group(params_in, tableno);
     n = numel(indices);
     stats_array = cell(n, 1);
     names_array = cell(n, 1);
     for ii = 1:n
         ip = indices(ii);
-        stats_array{ii} = fn_handle(main_results(ip));
+
+        idx = find(tableno == params_in(ip).group);
+        colnum = params_in(ip).colnums(idx);
+        stats_array{colnum} = fn_handle(main_results(ip));
 
         if experiment & ~isempty(params_in(ip).tex_header)
-            names_array{ii} = params_in(ip).tex_header;
+            names_array{colnum} = params_in(ip).tex_header;
         else
-            names_array{ii} = params_in(ip).name;
+            names_array{colnum} = params_in(ip).name;
         end
     end
 
     if ~isempty(ctimeresults)
-        stats_array{n+1} = fn_handle(ctimeresults);
-        names_array{n+1} = 'Continuous Time';
+        if ismember(tableno, ctimeresults.p.group)
+            idx = find(tableno == ctimeresults.p.group);
+            colnum = ctimeresults.p.colnums(idx);
+            stats_array{colnum} = fn_handle(ctimeresults);
+            names_array{colnum} = 'Continuous Time';
+        end
     end
 end
 

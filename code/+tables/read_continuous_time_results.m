@@ -103,7 +103,11 @@ function results = read_continuous_time_results(filepath)
         stats.decomp_RA.term1 = struct('value', stats_orig.decomp_RA.term1.value);
         stats.decomp_RA.term2 = struct('value', stats_orig.decomp_RA.term2.value);
         stats.decomp_RA.term3 = struct('value', stats_orig.decomp_RA.term3.value);
+
+        p = struct();
+        p.group = [-1];
+        p.colnums = [-3]
         
-        results = struct('stats', stats);
+        results = struct('stats', stats, 'p', p);
     end
 end

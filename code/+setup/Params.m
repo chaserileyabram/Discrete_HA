@@ -18,6 +18,7 @@ classdef Params < handle
         name;
         index;
         group;
+        colnums;
         descr;
         tex_header;
         tex_header_values;
@@ -49,7 +50,7 @@ classdef Params < handle
         shocks_labels;
         
         % Thresholds (in dollars) theta to compute share households with a < theta
-        dollar_thresholds = [1000, 2000, 5000, 10000, 25000]; 
+        dollar_thresholds = [1000, 5000, 10000, 50000, 100000]; 
         dollar_threshold_labels;
 
         % Thresholds (in numeraire) theta to compute share households with a < theta

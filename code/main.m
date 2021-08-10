@@ -136,7 +136,7 @@ function results = main(p)
         basemodel, mpcmodels);
     if p.MPCs
         disp('Computing MPCs')
-        mpc_finder.solve(p, grdDST);
+        mpc_finder.solve(p, grdDST, results.stats);
     end
 
     results.stats.add_mpcs(mpc_finder);
