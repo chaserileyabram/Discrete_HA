@@ -113,6 +113,7 @@ classdef TexTables
 	            		x.stats.mpcs(5).quarterly
 	                    x.stats.mpcs(5).annual
                         x.stats.mpcs(5).quarterly_htm_a_lt_1000
+                        x.stats.mpcs(5).quarterly_mean_a
 	                    x.stats.beta_A_effective
 	                  };
 	            case 'A'
@@ -235,6 +236,7 @@ classdef TexTables
                     statistics{ii} = {  results(ip).stats.mpcs(5).quarterly
                                         results(ip).stats.mpcs(5).annual
                                         results(ip).stats.mpcs(5).quarterly_htm_a_lt_1000
+                                        results(ip).stats.mpcs(5).quarterly_mean_a
                                         results(ip).stats.beta_A_effective
                                       };
                 end

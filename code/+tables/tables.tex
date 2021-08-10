@@ -34,6 +34,8 @@
 	\begin{tablenotes} %
 	\ifthenelse{\equal{#1}{1}}{%
 		\item[$\dagger$] Mean MPC for HtM households, where HtM is defined as assets less than or equal to \$1000.}{}%
+	\ifthenelse{\equal{#2}{1}}{%
+		\item[$\ddagger$] Mean MPC at mean wealth, $E[m \mid a = E[a]]$.}{}%
     \end{tablenotes}%
     }{}
 }
