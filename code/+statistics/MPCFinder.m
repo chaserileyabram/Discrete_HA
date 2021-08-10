@@ -291,9 +291,10 @@ classdef MPCFinder < handle
            		mpc_htm_a_lt_1000 = dot(dist_htm_a_lt_1000, mpcsvec(htm_a_lt_1000(:)));
 
            		% At mean wealth
-           		mpc_a = mpc_ss * shiftdim(obj.het.zdist);
-           		mpc_a = mpc_a * shiftdim(obj.income.yFdist);
-           		mpc_a = mpc_a * shiftdim(obj.income.yPdist);
+           		mpc_a = mpc_ss .* shiftdim(obj.het.zdist, -3)...
+                    .* shiftdim(obj.income.yFdist, -2)...
+                    .* shiftdim(obj.income.yPdist, -1);
+                mpc_a = sum(reshape(mpc_a, obj.p.nx, []), 2);
 
            		mpc_a_interp = griddedInterpolant(obj.grids.a.vec, mpc_a, 'linear', 'linear');
            		mpc_mean_a = mpc_a_interp(stats.mean_a.value);
