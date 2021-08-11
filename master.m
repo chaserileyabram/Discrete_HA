@@ -9,8 +9,8 @@ close all;
 % SET OPTIONS
 % -------------------------------------------------------------------------
 % options
-runopts.calibrate = true; % wrap code in nonlinear solver
-runopts.fast = false; % very small asset and income grids for testing
+runopts.calibrate = false; % wrap code in nonlinear solver
+runopts.fast = true; % very small asset and income grids for testing
 runopts.Simulate = false; % also solve distribution via simulation
 runopts.MakePlots = false;
 runopts.MPCs = true;
@@ -23,8 +23,8 @@ runopts.SaveOutput = true;
 runopts.mode = 'parameters'; % 'parameters'
 
 % select experiment (ignored when run on server)
-runopts.name_to_run = ''; % ''
-runopts.number = [1]; % []
+runopts.name_to_run = 'EZ w/ IES betw exp(-2), exp(2)'; % ''
+runopts.number = []; % []
 
 %% ------------------------------------------------------------------------
 % HOUSEKEEPING, DO NOT CHANGE

@@ -64,6 +64,7 @@ function [params, all_names] = parameters(runopts)
     params(1).group = [-1];
     params(1).colnums = [2];
     params(1).descr = 'Baseline';
+    params(end).tex_header = 'Annual';
      
     % Quarterly
     params(end+1) = setup.Params(4, 'Quarterly', quarterly_b_params);
@@ -71,7 +72,7 @@ function [params, all_names] = parameters(runopts)
     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
     params(end).descr = 'Baseline';
-    params(end).tex_header = 'Baseline';
+    params(end).tex_header = 'Quarterly';
 
     %----------------------------------------------------------------------
     % PART 2, DIFFERENT ASSUMPTIONS

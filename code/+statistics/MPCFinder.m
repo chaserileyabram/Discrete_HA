@@ -148,7 +148,7 @@ classdef MPCFinder < handle
 				end
 
 				for shockperiod = shockperiods
-					immediate_shock = 0;
+					 immediate_shock = 0;
 					fprintf('    Computing MPCs out of period %d shock of size %f...\n',...
 						shockperiod, shock_size)
 					obj.computeMPCs(ishock, shockperiod, immediate_shock, stats);
@@ -294,7 +294,7 @@ classdef MPCFinder < handle
            		mpc_a = mpc_ss .* shiftdim(obj.het.zdist, -3)...
                     .* shiftdim(obj.income.yFdist, -2)...
                     .* shiftdim(obj.income.yPdist, -1);
-                mpc_a = sum(reshape(mpc_a, obj.p.nx, []), 2);
+                mpc_a = sum(reshape(mpc_a, obj.p.nx_DST, []), 2);
 
            		mpc_a_interp = griddedInterpolant(obj.grids.a.vec, mpc_a, 'linear', 'linear');
            		mpc_mean_a = mpc_a_interp(stats.mean_a.value);

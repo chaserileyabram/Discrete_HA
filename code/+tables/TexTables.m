@@ -5,7 +5,7 @@ classdef TexTables
     end
 
     methods (Static)
-        function [n, labels, vars, decimals] = get_header_variables(table_group)
+        function [n, labels, vars, decimals] = get_header_variables(tableno)
             decimals = [];
 
             if tableno == 1
@@ -18,7 +18,7 @@ classdef TexTables
                 decimals = [2];
             elseif tableno == 3
                 labels = {'Beta Spacing', 'r', 'Switching Probability'};
-                vars = {'betawidth', 'r', 'prob_zswitch'};
+                vars = {'spacing', 'r', 'pswitch'};
             elseif tableno == 4
                 labels = {'Risk Aversion', 'IES', 'Temptation'};
                 vars = {'riskaver', 'ies', 'tempt'};
@@ -186,7 +186,7 @@ classdef TexTables
 
             import statistics.Statistics.sfill
 
-            [nhvars, hlabels, hvars, hdecimals] = tables.TexTables.get_header_variables(table_group);
+            [nhvars, hlabels, hvars, hdecimals] = tables.TexTables.get_header_variables(tableno);
 
             all_annual = true;
             for ip = indices
@@ -227,7 +227,7 @@ classdef TexTables
         function table_out = experiment_table_panel(params_in, variables, panel, tableno)
             indices = filter_param_group(params_in, tableno);
             all_annual = true;
-            for ii = indices
+            for ip = indices
                 if params_in(ip).freq == 4
                     all_annual = false;
                     break
@@ -262,7 +262,6 @@ classdef TexTables
 	                    x.stats.constrained_dollars{3}
 	                    x.stats.constrained_dollars{4}
 	                    x.stats.constrained_dollars{5}
-                        x.stats.constrained_dollars{6}
 	                    x.stats.w_top10share
 	                    x.stats.w_top1share
 	                    x.stats.wgini
@@ -321,7 +320,7 @@ function indices = filter_param_group(params_in, tableno)
         end
     end
 
-    sorted_mat = sortrows(colnums(:), ips(:));
+    sorted_mat = sortrows([colnums(:), ips(:)]);
     indices = reshape(sorted_mat(:,2), 1, []);
 end
 
