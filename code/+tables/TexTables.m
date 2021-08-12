@@ -68,7 +68,7 @@ classdef TexTables
         function save_experiment_table(params_in, results, comparison_decomps, dirpath, tableno)
             header = tables.TexTables.experiment_table_header(params_in, results, tableno);
             tabcapnum = tablecnum(tableno);
-            headerpath = fullfile(dirpath, sprintf('table%d_header.xlsx', tabcapnum));
+            headerpath = fullfile(dirpath, sprintf('table%s_header.xlsx', tabcapnum));
             writetable(header, headerpath, 'WriteRowNames', true);
 
             for panelname = {'A', 'B', 'C', 'D'}
@@ -79,7 +79,7 @@ classdef TexTables
             		panelobj = tables.TexTables.experiment_table_panel(...
             			params_in, results, panelname{:}, tableno);
             	end
-            	panelfname = sprintf('table%d_panel%s.xlsx', tabcapnum, panelname{:});
+            	panelfname = sprintf('table%s_panel%s.xlsx', tabcapnum, panelname{:});
             	panelfpath = fullfile(dirpath, panelfname);
             	writetable(panelobj, panelfpath, 'WriteRowNames', true);
             end
@@ -91,7 +91,7 @@ classdef TexTables
 	            	get_stats = @(x) {
 	            		x.stats.mpcs(5).quarterly
 	                    x.stats.mpcs(5).annual
-                        x.stats.mpcs(5).quarterly_htm_a_lt_1000
+                        x.stats.mpcs(5).quarterly_htm_biw
                         x.stats.mpcs(5).quarterly_mean_a
 	                    x.stats.beta_A_effective
 	                  };
@@ -212,7 +212,7 @@ classdef TexTables
                 else
                     statistics{ii} = {  results(ip).stats.mpcs(5).quarterly
                                         results(ip).stats.mpcs(5).annual
-                                        results(ip).stats.mpcs(5).quarterly_htm_a_lt_1000
+                                        results(ip).stats.mpcs(5).quarterly_htm_biw
                                         results(ip).stats.mpcs(5).quarterly_mean_a
                                         results(ip).stats.beta_A_effective
                                       };
@@ -341,6 +341,13 @@ function [stats_array, names_array] = stack_results(tableno, fn_handle, params_i
 
         idx = find(tableno == params_in(ip).group);
         colnum = params_in(ip).colnums(idx);
+
+        // if tableno == -2
+        //     names_array{1} = 'Baseline';
+        //     stats_array{1} = fn_handle(main_results(2));
+        //     colnum = colnum+1;
+        // end
+
         stats_array{colnum} = fn_handle(main_results(ip));
 
         if experiment & ~isempty(params_in(ip).tex_header)

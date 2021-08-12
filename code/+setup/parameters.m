@@ -176,7 +176,7 @@ function [params, all_names] = parameters(runopts)
     params(end).beta0 = 0.975363510593659;
     params(end).tex_header = 'No Death';
     params(end).group = [-2];
-    params(end).colnums = [1];
+    params(end).colnums = [2];
 
     % % no bequests
     % name = 'No Bequests';
@@ -190,7 +190,7 @@ function [params, all_names] = parameters(runopts)
     params(end+1) = setup.Params(4, name, quarterly_b_params);
     params(end).tex_header = 'With Bequests';
     params(end).group = [-2];
-    params(end).colnums = [2];
+    params(end).colnums = [3];
 
     % perfect annuities
     name = 'Annuities';
@@ -199,7 +199,7 @@ function [params, all_names] = parameters(runopts)
     params(end).betaH0 = - 5e-3;
     params(end).tex_header = 'Annuities';
     params(end).group = [-2];
-    params(end).colnums = [3];
+    params(end).colnums = [4];
 
     % different interest rates
     for ii = [0, 5]
