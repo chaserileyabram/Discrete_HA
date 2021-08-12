@@ -332,7 +332,7 @@ classdef MPCFinder < handle
                     return;
                 end
 	            
-	            if (shockperiod == 1) && (it >= 1 && it <= 4)
+	            if (shockperiod == 1) && (it >= 1 && it <= 5)
 	            	% store is = 1 mpcs for decompositions
 	                obj.mpcs(ishock).mpcs_1_t{it} = mpcs;
 	            end
@@ -362,7 +362,7 @@ classdef MPCFinder < handle
 	            RHScon = obj.basemodel.statetrans * RHScon;
 	            LHScon = obj.basemodel.statetrans * LHScon;
 	            
-	            if (it >= 1) && (it <= 4)
+	            if (it >= 1) && (it <= 5)
 	                obj.mpcs(ishock).mpcs_1_t{it} = mpcs;
 	            end
 	        end

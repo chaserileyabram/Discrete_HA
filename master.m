@@ -23,7 +23,7 @@ runopts.SaveOutput = true;
 runopts.mode = 'parameters'; % 'parameters'
 
 % select experiment (ignored when run on server)
-runopts.name_to_run = 'EZ w/ IES betw exp(-2), exp(2)'; % ''
+runopts.name_to_run = 'Beta5, pSwitch0, 0.05-0.1-0.7-0.1-0.05, pSpacing0.01'; % ''
 runopts.number = []; % []
 
 %% ------------------------------------------------------------------------
