@@ -144,7 +144,7 @@ classdef MPCFinder < handle
 				if (p.MPCs_news == 0) || (p.EpsteinZin == 1)
 					shockperiods = 1;
 				else
-					shockperiods = [1 2 5];
+					shockperiods = [1 2 3 4 5];
 				end
 
 				for shockperiod = shockperiods
