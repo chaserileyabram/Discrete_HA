@@ -136,7 +136,7 @@ function results = main(p)
         basemodel, mpcmodels);
     if p.MPCs
         disp('Computing MPCs')
-        mpc_finder.solve(p, grdDST);
+        mpc_finder.solve(p, grdDST, results.stats);
     end
 
     results.stats.add_mpcs(mpc_finder);
@@ -174,7 +174,7 @@ function results = main(p)
     % FIGURES
     % ---------------------------------------------------------------------
     % if p.MakePlots
-    %     % plot(grdDST.a.vec, cumsum(results.direct.agrid_dist))
+    %     % plot(grdDST.a.vec, cumsum(results.stats.pmf_a))
     %     % xlim([0 0.2])
         
     %     % Wealth at low yP
@@ -282,6 +282,6 @@ function results = main(p)
     converged = p.calibrating;
 
     if ~p.calibrating
-        save(p.savematpath, 'Sparams', 'results', 'converged')
+        save(p.savematpath, 'Sparams', 'results', 'heterogeneity', 'converged')
     end
 end

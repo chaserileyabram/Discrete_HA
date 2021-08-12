@@ -18,7 +18,7 @@
 % Code for each table
 \newcommand{\modeltablecode}[3]{%
 	\begin{table}[ht] %
-	\caption{#1} %
+	% \caption{#1} %
 	\centering
 	\begin{threeparttable} %
 	\input{table#2.tex} %
@@ -34,8 +34,8 @@
 	\begin{tablenotes} %
 	\ifthenelse{\equal{#1}{1}}{%
 		\item[$\dagger$] Mean MPC for HtM households, where HtM is defined as assets less than or equal to \$1000.}{}%
-    \ifthenelse{\equal{#2}{1}}{%
-		\item[*] Where indicated, households are classified as HtM when $a \leq 1\%$ mean annual income.}{}%
+	\ifthenelse{\equal{#2}{1}}{%
+		\item[$\ddagger$] Mean MPC at mean wealth, $E[m \mid a = E[a]]$.}{}%
     \end{tablenotes}%
     }{}
 }
@@ -44,62 +44,45 @@
 \newcommand{\tablenumber}[1]{#1}
 
 % Table 1
-\modeltablecode{Baselines}{\tablenumber{1}}{ %
-	\modeltablenotes{1}{0} %
+\modeltablecode{T1}{\tablenumber{1}}{ %
+	\modeltablenotes{1}{1} %
 }
 
 % Table 2
-\modeltablecode{Baseline decompositions}{\tablenumber{2}}{ %
-	\modeltablenotes{0}{0} %
+\modeltablecode{T2}{\tablenumber{2}}{ %
+	\modeltablenotes{1}{1} %
 }
 
 % Table 3
-\modeltablecode{Alternative Targets (1)}{\tablenumber{3}}{ %
+\modeltablecode{T3}{\tablenumber{3}}{ %
 	\modeltablenotes{1}{1} %
 }
 
 % Table 4
-\modeltablecode{Alternative Targets (2)}{\tablenumber{4}}{ %
+\modeltablecode{T4}{\tablenumber{4}}{ %
 	\modeltablenotes{1}{1} %
 }
 
-% Table 5
-\modeltablecode{Bequests, Death, and Annuities}{\tablenumber{5}}{ %
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{table}{1}
+
+% Table 1
+\modeltablecode{T1}{\tablenumber{A1}}{ %
 	\modeltablenotes{1}{1} %
 }
 
-% Table 6
-\modeltablecode{Discount Factor Heterogeneity}{\tablenumber{6}}{ %
+% Table 2
+\modeltablecode{T2}{\tablenumber{A2}}{ %
 	\modeltablenotes{1}{1} %
 }
 
-% Table 7
-\modeltablecode{Risk Aversion}{\tablenumber{7}}{ %
+% Table 3
+\modeltablecode{T3}{\tablenumber{A3}}{ %
 	\modeltablenotes{1}{1} %
 }
 
-% Table 8
-\modeltablecode{Epstein-Zin Preferences}{\tablenumber{8}}{ %
-	\modeltablenotes{1}{1} %
-}
-
-% Table 9
-\modeltablecode{Temptation Preferences}{\tablenumber{9}}{ %
-	\modeltablenotes{1}{1} %
-}
-
-% Table 10
-\modeltablecode{Temptation Preferences}{\tablenumber{10}}{ %
-	\modeltablenotes{1}{1} %
-}
-
-% Table 11
-\modeltablecode{Alternative Income Processes, Annual}{\tablenumber{11}}{ %
-	\modeltablenotes{1}{1} %
-}
-
-% Table 12
-\modeltablecode{Alternative Income Processes, Quarterly}{\tablenumber{12}}{ %
+% Table 4
+\modeltablecode{T4}{\tablenumber{A4}}{ %
 	\modeltablenotes{1}{1} %
 }
 

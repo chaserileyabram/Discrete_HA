@@ -7,7 +7,7 @@ function results = read_continuous_time_results(filepath)
         empty_struct = struct('value', NaN);
         for ishock = 1:6
             stats.mpcs(ishock) = struct('quarterly', empty_struct, 'annual', empty_struct,...
-                'oneperiod', empty_struct, 'quarterly_htm_a_lt_1000', empty_struct);
+                'oneperiod', empty_struct, 'quarterly_htm_biw', empty_struct);
         end
 
         stats.beta_A = empty_struct;
@@ -20,7 +20,7 @@ function results = read_continuous_time_results(filepath)
         stats.constrained = {empty_struct};
 
         stats.constrained_dollars = cell(1, 4);
-        for ii = 1:4
+        for ii = [2 4:7]
             stats.constrained_dollars{ii} = empty_struct;
         end
         stats.a_lt_ysixth = empty_struct;
@@ -61,10 +61,11 @@ function results = read_continuous_time_results(filepath)
             annual = struct('value', stats_orig.mpcs(ishock).annual.value);
             oneperiod = struct('value', stats_orig.mpcs(ishock).quarterly.value);
             stats.mpcs(ishock) = struct('quarterly', quarterly, 'annual', annual,...
-                'oneperiod', oneperiod, 'quarterly_htm_a_lt_1000', struct('value', NaN));
+                'oneperiod', oneperiod, 'quarterly_htm_biw', struct('value', NaN));
         end
         
         stats.beta_A = struct('value', stats_orig.beta_A.value);
+        stats.beta_A_effective = struct('value', stats_orig.beta_A_effective.value);
         stats.mean_gross_y_annual = struct('value', stats_orig.mean_gross_y_annual.value);
         stats.std_log_gross_y_annual = struct('value', stats_orig.std_log_gross_y_annual.value);
         stats.std_log_net_y_annual = struct('value', stats_orig.std_log_net_y_annual.value);
@@ -102,7 +103,11 @@ function results = read_continuous_time_results(filepath)
         stats.decomp_RA.term1 = struct('value', stats_orig.decomp_RA.term1.value);
         stats.decomp_RA.term2 = struct('value', stats_orig.decomp_RA.term2.value);
         stats.decomp_RA.term3 = struct('value', stats_orig.decomp_RA.term3.value);
+
+        p = struct();
+        p.group = [-1];
+        p.colnums = [-3]
         
-        results = struct('stats', stats);
+        results = struct('stats', stats, 'p', p);
     end
 end

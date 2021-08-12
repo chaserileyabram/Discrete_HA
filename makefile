@@ -24,7 +24,7 @@ combine :
 
 # Download results from server -- make sure to change spath as needed!
 # (run this after running 'make combine' on the server)
-spath := "$$MW:/home/livingstonb/GitHub/Discrete_HA/output/tables*"
+spath := "$$MW:/home/livingstonb/GitHub/Discrete_HA-brian-fork/output/tables*"
 cdate := $(shell date +"%m-%d-%Y-%T")
 download :
 	-mkdir -p output/server-$(cdate)
@@ -39,10 +39,10 @@ download :
 # 	cd output/tables && pdflatex tables
 # 	cd output/tables && pdflatex tables
 
-tables : tables1.pdf tables2.pdf tables3.pdf
+tables : tables1.pdf
 
 %.pdf :
-	python code/+tables/create_tex_tables.py "output/tables/$*"
-	cp code/+tables/tables.tex output/tables/$*/$*.tex
-	cd output/tables/$* && pdflatex $*
-	cd output/tables/$* && pdflatex $*
+	python code/+tables/create_tex_tables.py "output/$*"
+	cp code/+tables/tables.tex output/$*/$*.tex
+	cd output/$* && pdflatex $*
+	cd output/$* && pdflatex $*

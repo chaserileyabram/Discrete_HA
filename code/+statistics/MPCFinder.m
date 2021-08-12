@@ -34,6 +34,8 @@ classdef MPCFinder < handle
 		mpcs = struct(); % results
 		loan = struct();
 		loss_in_2_years = struct();
+
+		het;
 	end
 
 	methods
@@ -52,6 +54,7 @@ classdef MPCFinder < handle
 				[1, 1, 1, p.nz, 1]);
 			obj.grids = grids;
 			obj.r_mat = heterogeneity.r_broadcast;
+			obj.het = heterogeneity;
 
 		    for ishock = 1:6
 		    	shock_label = p.shocks_labels{ishock};
@@ -77,7 +80,7 @@ classdef MPCFinder < handle
 					sprintf('Median one-period MPC (%%), out of %s',...
 						shock_label));
 
-                obj.mpcs(ishock).quarterly_htm_biweekly = sfill(NaN,...
+                obj.mpcs(ishock).quarterly_htm_biw = sfill(NaN,...
 					sprintf('Quarterly HtM1 MPC (%%), out of %s', shock_label), 1,...
 		    		sprintf('Quarterly MPC\textsuperscript{$\\dagger$} (\\%%), out of %s', shock_label_tex));
 
@@ -85,7 +88,21 @@ classdef MPCFinder < handle
 					sprintf('Quarterly HtM1 MPC (%%), out of %s', shock_label), 1,...
 		    		sprintf('Quarterly MPC\textsuperscript{$\\dagger$} (\\%%), out of %s', shock_label_tex));
 
-		    	obj.mpcs(ishock).avg_s_t = NaN(5,5);
+                obj.mpcs(ishock).quarterly_mean_a = sfill(NaN,...
+					sprintf('Quarterly MPC at mean a (%%), out of %s', shock_label), 1,...
+		    		sprintf('Quarterly MPC\textsuperscript{$\\ddagger$} (\\%%), out of %s', shock_label_tex));
+
+                obj.mpcs(ishock).avg_s_t = cell(5, 9);
+                for iss = 1:5
+                	for itt = 1:9
+                		s_t_label = sprintf('Period %d MPC out of %s period %d shock',...
+                			itt, shock_label_tex, iss);
+                		obj.mpcs(ishock).avg_s_t{iss,itt} = sfill(NaN,...
+                			s_t_label, 1, s_t_label);
+                	end
+                end
+
+		    	% obj.mpcs(ishock).avg_s_t = NaN(5,9);
 		    	% mpcs over states for shock in period 1
 		    	obj.mpcs(ishock).mpcs_1_t = cell(1,4);
                 % fraction of responders
@@ -93,7 +110,7 @@ classdef MPCFinder < handle
                 obj.mpcs(ishock).mpc_neg = NaN(5,5);
                 obj.mpcs(ishock).mpc0 = NaN(5,5);
                 % conditional mean
-                obj.mpcs(ishock).avg_s_t_condl = NaN(5,5);
+                obj.mpcs(ishock).avg_s_t_condl = NaN(5,9);
                 % median
                 obj.mpcs(ishock).median = NaN(5,5);
 
@@ -115,7 +132,7 @@ classdef MPCFinder < handle
 	    	end
 		end
 
-		function solve(obj, p, grids)
+		function solve(obj, p, grids, stats)
 			% This function calls the appropriate methods to find
 			% the MPCs.
 
@@ -131,10 +148,10 @@ classdef MPCFinder < handle
 				end
 
 				for shockperiod = shockperiods
-					immediate_shock = 0;
+					 immediate_shock = 0;
 					fprintf('    Computing MPCs out of period %d shock of size %f...\n',...
 						shockperiod, shock_size)
-					obj.computeMPCs(ishock, shockperiod, immediate_shock);
+					obj.computeMPCs(ishock, shockperiod, immediate_shock, stats);
 				end
             end
 
@@ -142,12 +159,12 @@ classdef MPCFinder < handle
                 % $500 loss in 2 years
                 immediate_shock = 0;
                 fprintf('    Computing MPCs out of anticipated loss in 2 years...\n')
-                obj.computeMPCs(1, 9, immediate_shock);
+                obj.computeMPCs(1, 9, immediate_shock, stats);
 
                 % $5000 loan for one year
                 fprintf('    Computing MPCs out of loan...\n')
                 immediate_shock = p.shocks(6);
-                obj.computeMPCs(3, 5, immediate_shock);
+                obj.computeMPCs(3, 5, immediate_shock, stats);
             end
 
 			obj.compute_cumulative_mpcs();
@@ -178,7 +195,7 @@ classdef MPCFinder < handle
 		    end
 		end
 
-		function computeMPCs(obj, ishock, shockperiod, immediate_shock)
+		function computeMPCs(obj, ishock, shockperiod, immediate_shock, stats)
 			shock = obj.p.shocks(ishock);
 
 			for it = 1:shockperiod
@@ -236,11 +253,15 @@ classdef MPCFinder < handle
                 mpcsvec = mpcs(:);
 
            		% Conditional on HtM (own biweekly inc)
-       %     		qinc = obj.income.netymat_broadcast  * (obj.p.freq / 4);
-       %     		htm_biweekly =  (obj.grids.a.vec ./ qinc) <= (1 / 6);
+           		qinc = obj.income.netymat_broadcast  * (obj.p.freq / 4);
+           		htm_biw =  (obj.grids.a.vec ./ qinc) <= (1 / 6);
+
+           		if obj.p.nz > size(htm_biw, 4)
+           			htm_biw = repmat(htm_biw, [1 1 1 obj.p.nz 1]);
+           		end
            		
-       %     		[n1, n2, n3, n4] = size(obj.basemodel.pmf);
-       %     		dims1 = [n1, n2, n3, n4];
+           		% [n1, n2, n3, n4] = size(obj.basemodel.pmf);
+           		% dims1 = [n1, n2, n3, n4];
 			    % [n1, n2, n3, n4] = size(htm_biweekly);
 			    % dims0 = [n1, n2, n3, n4];
 			    % dims1(dims1 == dims0) = 1;
@@ -251,6 +272,15 @@ classdef MPCFinder < handle
        %     		dist_htm_biweekly = dist_htm_biweekly / sum(dist_htm_biweekly);
        %     		mpc_htm_biweekly = dot(dist_htm_biweekly, mpcsvec(htm_biweekly(:)));
 
+      			% Conditional on HtM (biweekly)
+      			dist_vec_yT = dist_vec * shiftdim(obj.income.yTdist, -1);
+      			dist_vec_yT = dist_vec_yT(:);
+      			dist_vec_htm_biw = dist_vec_yT(htm_biw(:));
+      			dist_vec_htm_biw = dist_vec_htm_biw / sum(dist_vec_htm_biw);
+      			mpc_htm_yT = repmat(mpcsvec, [1 obj.p.nyT]);
+      			mpc_htm_yT = mpc_htm_yT(:);
+      			mpc_htm_biw = dot(dist_vec_htm_biw, mpc_htm_yT(htm_biw(:)));
+
            		% Conditional on HtM (a <= $1000)
            		htm_a_lt_1000 =  obj.grids.a.vec <= 1000 / obj.p.numeraire_in_dollars;
            		dims1 = size(obj.basemodel.pmf);
@@ -259,6 +289,15 @@ classdef MPCFinder < handle
            		dist_htm_a_lt_1000 = dist_vec(htm_a_lt_1000(:));
            		dist_htm_a_lt_1000 = dist_htm_a_lt_1000 / sum(dist_htm_a_lt_1000);
            		mpc_htm_a_lt_1000 = dot(dist_htm_a_lt_1000, mpcsvec(htm_a_lt_1000(:)));
+
+           		% At mean wealth
+           		mpc_a = mpc_ss .* shiftdim(obj.het.zdist, -3)...
+                    .* shiftdim(obj.income.yFdist, -2)...
+                    .* shiftdim(obj.income.yPdist, -1);
+                mpc_a = sum(reshape(mpc_a, obj.p.nx_DST, []), 2);
+
+           		mpc_a_interp = griddedInterpolant(obj.grids.a.vec, mpc_a, 'linear', 'linear');
+           		mpc_mean_a = mpc_a_interp(stats.mean_a.value);
 
            		% Assign values
 	            if immediate_shock > 0
@@ -270,16 +309,18 @@ classdef MPCFinder < handle
 	            	obj.loan.median = mpc_median;
                     return;
 	            elseif shockperiod <= 5
-	            	obj.mpcs(ishock).avg_s_t(shockperiod,it) = obj.basemodel.pmf(:)' * mpcs(:);
+	            	obj.mpcs(ishock).avg_s_t{shockperiod,it}.value = obj.basemodel.pmf(:)' * mpcs(:);
                     obj.mpcs(ishock).avg_s_t_condl(shockperiod,it) = mpc_condl;
                     obj.mpcs(ishock).mpc_pos(shockperiod,it) = mpc_pos;
                     obj.mpcs(ishock).mpc_neg(shockperiod,it) = mpc_neg;
                     obj.mpcs(ishock).mpc0(shockperiod,it) = mpc0;
                     obj.mpcs(ishock).median(shockperiod,it) = mpc_median;
 
-                    if (it == 1) && (obj.p.freq == 4)
+                    if (it == 1) && (obj.p.freq == 4) && (shockperiod == 1)
 	                    % obj.mpcs(ishock).quarterly_htm_biweekly.value = mpc_htm_biweekly;
+	                    obj.mpcs(ishock).quarterly_htm_biw.value = 100 * mpc_htm_biw;
 	                    obj.mpcs(ishock).quarterly_htm_a_lt_1000.value = 100 * mpc_htm_a_lt_1000;
+	                    obj.mpcs(ishock).quarterly_mean_a.value = 100 * mpc_mean_a;
 	                end
 	            elseif shockperiod == 9
 	            	obj.loss_in_2_years.avg = obj.basemodel.pmf(:)' * mpcs(:);
@@ -313,11 +354,11 @@ classdef MPCFinder < handle
 	        RHScon = obj.basemodel.statetrans^shockperiod * obj.con_baseline(:);
 	        LHScon = obj.con_baseline(:);
 
-	        for it = shockperiod+1:5 % it > shockperiod case, policy fcns stay the same in this region
+	        for it = shockperiod+1:9 % it > shockperiod case, policy fcns stay the same in this region
 	            mpcs = (trans_1_t * LHScon - RHScon) / obj.p.shocks(ishock);
 
 	            % state transitions are as usual post-shock
-	            obj.mpcs(ishock).avg_s_t(shockperiod,it) = obj.basemodel.pmf(:)' * mpcs(:);
+	            obj.mpcs(ishock).avg_s_t{shockperiod,it}.value = obj.basemodel.pmf(:)' * mpcs(:);
 	            RHScon = obj.basemodel.statetrans * RHScon;
 	            LHScon = obj.basemodel.statetrans * LHScon;
 	            
@@ -329,15 +370,17 @@ classdef MPCFinder < handle
 
 		function compute_cumulative_mpcs(obj)
 			for ishock = 1:6
-				obj.mpcs(ishock).avg_1_1to4 = sum(obj.mpcs(ishock).avg_s_t(1,1:4));
-				obj.mpcs(ishock).avg_5_1to4 = sum(obj.mpcs(ishock).avg_s_t(5,1:4));
+				vec_1_1to4 = [cell2mat(obj.mpcs(ishock).avg_s_t(1,1:4)).value];
+				obj.mpcs(ishock).avg_1_1to4 = sum(vec_1_1to4);
+				vec_5_1to4 = [cell2mat(obj.mpcs(ishock).avg_s_t(5,1:4)).value];
+				obj.mpcs(ishock).avg_5_1to4 = sum(vec_5_1to4);
 				if obj.p.freq == 4
-					obj.mpcs(ishock).quarterly.value = 100 * obj.mpcs(ishock).avg_s_t(1,1);
+					obj.mpcs(ishock).quarterly.value = 100 * obj.mpcs(ishock).avg_s_t{1,1}.value;
 					obj.mpcs(ishock).annual.value = 100 * obj.mpcs(ishock).avg_1_1to4;
 					obj.mpcs(ishock).oneperiod.value = obj.mpcs(ishock).quarterly.value;
 				else
 					obj.mpcs(ishock).quarterly.value = NaN;
-					obj.mpcs(ishock).annual.value = 100 * obj.mpcs(ishock).avg_s_t(1,1);
+					obj.mpcs(ishock).annual.value = 100 * obj.mpcs(ishock).avg_s_t{1,1}.value;
 					obj.mpcs(ishock).oneperiod.value = obj.mpcs(ishock).annual.value;
 				end
 
@@ -355,7 +398,8 @@ classdef MPCFinder < handle
 			x_mpc = obj.xgrid_yT + shock;
 
 			if (ii == is - 1) && (p.shocks(ishock) < 0)
-				adj_borr_lim = (obj.p.borrow_lim - p.shocks(ishock) - obj.income.minnety) ./ p.R;
+				adj_borr_lim = (obj.p.borrow_lim - p.shocks(ishock) - obj.income.minnety);
+				adj_borr_lim = adj_borr_lim ./ (1 + obj.r_mat);
 			else
 		        adj_borr_lim = p.borrow_lim;
 		    end

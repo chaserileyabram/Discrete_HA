@@ -63,6 +63,7 @@ def other_panel(dirpath, table, panel, panelname):
 
 	df = pd.read_excel(filepath, index_col=0, header=0)
 	df = apply_float_formatting(df)
+
 	colfmt = 'l'
 	for ic in range(len(df.columns)):
 		colfmt += 'c'
@@ -89,28 +90,35 @@ def other_panel(dirpath, table, panel, panelname):
 def save_tex_table(dirpath, tableno):
 	panels = [header_panel(os.path.join(dirpath, f'table{tableno}_header.xlsx'))]
 
-	if tableno == 1:
-		panel_args = [
-			['A', 'Income Statistics'],
-			['B', 'Wealth Statistics'],
-			['C', 'MPC Size Effects'],
-			['D', 'MPC Sign Effects'],
-		]
-	elif tableno == 2:
-		panel_args = [
-			['A', 'Decomposition of Mean MPC, around 0'],
-			['B', 'Decomposition of Mean MPC, around 0.01'],
-			['C', 'Decomposition of Mean MPC, around 0.05'],
-			['D', 'Decomposition of Mean MPC - MPC$_{RA}$'],
-		]
-	else:
-		panel_args = [
-			['A', 'Quarterly MPC Decomp w.r.t. Baseline'],
-			['A2', 'Quarterly MPC Decomp as \\% of $E[m_1]-E[m_0]$'],
-			['B', 'Wealth Statistics'],
-			['C', 'MPC Size Effects'],
-			['D', 'MPC Sign Effects'],
-		]
+	# if tableno == 1:
+	# 	panel_args = [
+	# 		['A', 'Income Statistics'],
+	# 		['B', 'Wealth Statistics'],
+	# 		['C', 'MPC Size Effects'],
+	# 		['D', 'MPC Sign Effects'],
+	# 	]
+	# elif tableno == 2:
+	# 	panel_args = [
+	# 		['A', 'Decomposition of Mean MPC, around \$1000'],
+	# 		['B', 'Decomposition of Mean MPC, around \$2000'],
+	# 		['C', 'Decomposition of Mean MPC, around \$3000'],
+	# 		['D', 'Decomposition of Mean MPC - MPC$_{RA}$'],
+	# 	]
+	# else:
+	# 	panel_args = [
+	# 		['A', 'Quarterly MPC Decomp w.r.t. Baseline'],
+	# 		# ['A2', 'Quarterly MPC Decomp as \\% of $E[m_1]-E[m_0]$'],
+	# 		['B', 'Wealth Statistics'],
+	# 		['C', 'MPC Size Effects'],
+	# 		['D', 'MPC Sign Effects'],
+	# 	]
+
+	panel_args = [
+		['A', 'Quarterly MPC Decomp w.r.t. Baseline'],
+		['B', 'Wealth Statistics'],
+		['C', 'MPC Size Effects'],
+		['D', 'MPC Sign Effects'],
+	]
 
 	for ip in range(len(panel_args)):
 		panels.append(other_panel(dirpath, tableno, *panel_args[ip]))
@@ -124,6 +132,10 @@ def save_tex_table(dirpath, tableno):
 
 if __name__ == '__main__':
 	dirpath = sys.argv[1]
+	pd.set_option('display.max_colwidth',1000)
 
-	for it in range(1, 13):
+	tables = ['1', '2', '3', '4',
+		'A1', 'A2', 'A3', 'A4']
+
+	for it in tables:
 		save_tex_table(dirpath, it)

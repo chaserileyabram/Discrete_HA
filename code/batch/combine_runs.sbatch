@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=disc_combine_runs
-#SBATCH --output=/home/livingstonb/GitHub/Discrete_HA/output/combine_runs%a.out
-#SBATCH --error=/home/livingstonb/GitHub/Discrete_HA/output/combine_runs%a.err
+#SBATCH --output=/home/livingstonb/GitHub/Discrete_HA-brian-fork/output/combine_runs%a.out
+#SBATCH --error=/home/livingstonb/GitHub/Discrete_HA-brian-fork/output/combine_runs%a.err
 #SBATCH --partition=broadwl
 #SBATCH --time=00:20:00
 #SBATCH --array=1-3
@@ -11,4 +11,4 @@
 
 module load matlab/2019b
 
-matlab -nodisplay < "/home/livingstonb/GitHub/Discrete_HA/code/+statistics/combine_runs.m"
+matlab -nodisplay < "/home/livingstonb/GitHub/Discrete_HA-brian-fork/code/+statistics/combine_runs.m"

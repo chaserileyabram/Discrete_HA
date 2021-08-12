@@ -5,7 +5,7 @@
 clear
 
 [~, currdir] = fileparts(pwd());
-if ~strcmp(currdir, 'Discrete_HA')
+if ~strcmp(currdir, 'Discrete_HA-brian-fork')
     msg = 'The user must cd into the Discrete_HA directory';
     bad_dir = MException('Discrete_HA:master', msg);
     throw(bad_dir);
@@ -36,8 +36,9 @@ for irun = 1:999
 
         S = load(fpath);
         params(ind) = S.Sparams;
-        results(ind) = S.results;
+        heterogeneity(ind) = S.heterogeneity;
         stats{ind} = S.results.stats;
+        results(ind) = S.results;
     end
 end
 
@@ -45,6 +46,12 @@ if (ind == 0)
     error('No mat files found')
 end
 
+% Parameters table
+ptable = tables.param_tables(params, heterogeneity);
+panelfpath = fullfile('output', 'params_table.xlsx');
+writetable(ptable, panelfpath, 'WriteRowNames', true);
+
+% Stats table
 for ip = 1:ind
     if params(ip).freq == 1
         baseind = find(ismember({params.name}, {'Annual'}));
@@ -76,6 +83,7 @@ ctimeresults = tables.read_continuous_time_results(ctimepath);
 
 tables.TexTables.save_baselines_tables(params, results, outdir, 'ctimeresults', ctimeresults);
 
-for ip = 3:12
+tablenos = [1:4 -1:-1:-4];
+for ip = tablenos
 	tables.TexTables.save_experiment_table(params, results, decomps_baseline, outdir, ip);
 end
