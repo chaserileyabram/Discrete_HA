@@ -106,6 +106,7 @@ classdef Params < handle
     	betaL = 0.80; % lower bound
         betaH; % theoretical upper bound
         betaH0 = -1e-3; % adjustment to betaH
+        betaHvariable = [];
         
         % Warm glow bequests: bequest weight = 0 is accidental bequests
         bequest_weight = 0;
@@ -267,11 +268,12 @@ classdef Params < handle
 
             obj.savtax = obj.savtax / obj.freq;
             obj.Tsim = obj.Tsim * obj.freq; % Increase simulation time if quarterly
-            obj.beta0 = obj.beta0^(1 / obj.freq);
             obj.dieprob = 1 - (1 - obj.dieprob) ^ (1 / obj.freq);
             obj.prob_zswitch = 1 - (1 - obj.prob_zswitch) ^ (1 / obj.freq);
 
+            obj.beta0 = obj.beta0 ^ (1 / obj.freq);
             obj.betaL = obj.betaL ^ (1 / obj.freq);
+            obj.betaHvariable = obj.betaHvariable ^ (1 / obj.freq);
 
             obj.betaH = 1 ./ (max(obj.R) * (1-obj.dieprob));
             obj.betaH = obj.betaH + obj.betaH0;
@@ -323,6 +325,10 @@ classdef Params < handle
 
             if isempty(obj.descr)
                 obj.descr = obj.name;
+            end
+
+            if ~isempty(obj.betaHvariable)
+                obj.beta_grid_forced = [obj.beta0, obj.betaHvariable];
             end
         end
     end

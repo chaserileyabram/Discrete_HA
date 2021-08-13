@@ -23,7 +23,7 @@ runopts.SaveOutput = true;
 runopts.mode = 'parameters'; % 'parameters'
 
 % select experiment (ignored when run on server)
-runopts.name_to_run = 'Quarterly'; % ''
+runopts.name_to_run = '3pt CRRA = [exp(-2), exp(0), exp(2)], p = [0.15, 0.7, 0.15]'; % ''
 runopts.number = []; % []
 
 %% ------------------------------------------------------------------------
