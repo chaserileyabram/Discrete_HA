@@ -71,7 +71,7 @@ classdef TexTables
             headerpath = fullfile(dirpath, sprintf('table%s_header.xlsx', tabcapnum));
             writetable(header, headerpath, 'WriteRowNames', true);
 
-            for panelname = {'A', 'B', 'C', 'D'}
+            for panelname = {'A', 'B'}
             	if ismember(panelname{:}, {'A', 'A2'})
             		panelobj = tables.TexTables.experiment_table_panel(...
             			params_in, comparison_decomps, panelname{:}, tableno);
@@ -213,7 +213,8 @@ classdef TexTables
                     statistics{ii} = {  results(ip).stats.mpcs(5).quarterly
                                         results(ip).stats.mpcs(5).annual
                                         results(ip).stats.mpcs(5).quarterly_htm_biw
-                                        results(ip).stats.mpcs(5).quarterly_mean_a
+                                        results(ip).stats.a_lt_ysixth
+                                        results(ip).stats.mpc_apc_corr{5}
                                         results(ip).stats.beta_A_effective
                                       };
                 end
@@ -256,7 +257,6 @@ classdef TexTables
 	           		get_stats = @(x) {
 	           			x.stats.mean_a
                         x.stats.median_a
-	                    x.stats.a_lt_ysixth
 	                    x.stats.constrained_dollars{1}
 	                    x.stats.constrained_dollars{2}
 	                    x.stats.constrained_dollars{3}
