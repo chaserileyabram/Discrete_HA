@@ -239,7 +239,7 @@ function [params, all_names] = parameters(runopts)
     params(end).beta0 = 0.960885729527277;
     params(end).descr = 'r in {-3,1,5}';
     params(end).tex_header = 'r';
-    params(end).tex_header_values.r = '-0.03, 0.01, 0.05';
+    params(end).tex_header_values.value = '-0.03, 0.01, 0.05';
     params(end).group = [3];
     params(end).colnums = [7];
 
@@ -347,7 +347,7 @@ function [params, all_names] = parameters(runopts)
         end
         params(end).descr = 'CRRA';
         params(end).tex_header = 'CRRA';
-        params(end).tex_header_values.riskaver = ira;
+        params(end).tex_header_values.value = ira;
 
         if ira == 0.5
             params(end).group = [2];

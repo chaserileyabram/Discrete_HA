@@ -19,6 +19,7 @@ classdef TexTables
             elseif tableno == 3
                 labels = {'Beta Spacing', 'r', 'Switching Probability'};
                 vars = {'spacing', 'r', 'pswitch'};
+                decimals = [3, 2, 2];
             elseif tableno == 4
                 labels = {'Risk Aversion', 'IES', 'Temptation'};
                 vars = {'riskaver', 'ies', 'tempt'};
