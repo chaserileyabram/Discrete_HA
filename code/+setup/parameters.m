@@ -702,8 +702,8 @@ function [params, all_names] = parameters(runopts)
     name = 'Permanent r het, r in {-1,1,3} p.a., p = [0.15, 0.7, 0.15]';
     params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
     params(end).r = [-1, 1, 3] / 100;
-    params(end).betaH0 = -1e-4;
-    params(end).beta0 = 0.973149481985717;
+    params(end).betaH0 = 1e-3;
+    params(end).beta0 = 0.997149481985717;
     params(end).zdist_forced = [0.15, 0.7, 0.15];
     params(end).descr = 'r in {-1, 1, 3}';
     params(end).tex_header = 'r';
@@ -712,8 +712,8 @@ function [params, all_names] = parameters(runopts)
     name = 'Permanent r het, r in {-1,3} p.a., p = [0.15, 0.85]';
     params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
     params(end).r = [-1, 3] / 100;
-    params(end).betaH0 = -1e-4;
-    params(end).beta0 = 0.973149481985717;
+    params(end).betaH0 = 1e-3;
+    params(end).beta0 = 0.996149481985717;
     params(end).zdist_forced = [0.15, 0.85];
     params(end).descr = 'r in {-1, 3}';
     params(end).tex_header = 'r';
