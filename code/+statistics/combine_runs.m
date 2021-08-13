@@ -81,9 +81,9 @@ ctimename = sprintf('continuous_time_baseline%d.mat', taskid);
 ctimepath = fullfile('input', ctimename);
 ctimeresults = tables.read_continuous_time_results(ctimepath);
 
-tables.TexTables.save_baselines_tables(params, results, outdir, 'ctimeresults', ctimeresults);
+% tables.TexTables.save_baselines_tables(params, results, outdir, 'ctimeresults', ctimeresults);
 
 tablenos = [1:4 -1:-1:-4];
 for ip = tablenos
-	tables.TexTables.save_experiment_table(params, results, decomps_baseline, outdir, ip);
+	tables.TexTables.save_experiment_table(params, stats, decomps_baseline, outdir, ip, ctimeresults);
 end

@@ -106,7 +106,9 @@ function results = read_continuous_time_results(filepath)
 
         p = struct();
         p.group = [-1];
-        p.colnums = [-3]
+        p.colnums = [3]
+        p.tex_header = 'Continuous Time';
+        p.tex_header_values = [];
         
         results = struct('stats', stats, 'p', p);
     end
