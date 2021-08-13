@@ -662,19 +662,19 @@ function [params, all_names] = parameters(runopts)
     params(end).betaH0 = 1e-2;
     
     
-    for pbetaL = [0.15
-    name = 'Beta2';
-    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
-    params(end).nbeta = 2;
-    params(end).betawidth = 0.2;
-    params(end).prob_zswitch = 0;
-    params(end).beta0 = 0.956194383870642;
-    params(end).zdist_forced = [0.15, 0.85];
-    params(end).descr = sprintf('p = %g, normal, spacing = %g', 0, ibw);
-    params(end).tex_header = '$\beta$ het.';
-    params(end).tex_header_values.pswitch = 0;
-    params(end).tex_header_values.spacing = ibw;
-    params(end).betaH0 = 1e-2;
+    % for pbetaL = [0.15
+    % name = 'Beta2';
+    % params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    % params(end).nbeta = 2;
+    % params(end).betawidth = 0.2;
+    % params(end).prob_zswitch = 0;
+    % params(end).beta0 = 0.956194383870642;
+    % params(end).zdist_forced = [0.15, 0.85];
+    % params(end).descr = sprintf('p = %g, normal, spacing = %g', 0, ibw);
+    % params(end).tex_header = '$\beta$ het.';
+    % params(end).tex_header_values.pswitch = 0;
+    % params(end).tex_header_values.spacing = ibw;
+    % params(end).betaH0 = 1e-2;
     
     %----------------------------------------------------------------------
     % CALL METHODS/CHANGE SELECTED PARAMETERS, DO NOT CHANGE

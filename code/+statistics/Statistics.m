@@ -18,6 +18,8 @@ classdef Statistics < handle
 		median_a;
 		sav0;
 
+		mpc_apc_corr;
+
 		params;
 
 		mean_gross_y_annual;
@@ -82,6 +84,54 @@ classdef Statistics < handle
 
 		function add_mpcs(obj, mpcs_obj)
 			obj.mpcs = mpcs_obj.mpcs;
+
+			% Corr(MPC, APC)
+			obj.mpc_apc_corr = cell(1, 6);
+			for ishock = 1:6
+				shock_label = obj.p.shocks_labels{ishock};
+		    	shock_tex = split(obj.p.shocks_labels{ishock}, "$");
+		    	shock_label_tex = sprintf('%s\\$%s', shock_tex{1}, shock_tex{2});
+
+				shocksize = obj.p.shocks(ishock);
+
+				obj.mpc_apc_corr{ishock} = sfill(NaN,...
+		    		sprintf('Corr(MPC, APC), shock of %s', shock_label), 3,...
+		    		sprintf('Corr(MPC, APC), shock of %s', shock_label_tex));
+
+				c_x = zeros(obj.p.nx_DST, obj.p.nyP, obj.p.nyF, obj.p.nz, obj.p.nyT);
+				for iyP = 1:obj.p.nyP
+					for iyF = 1:obj.p.nyF
+						for iz = 1:obj.p.nz
+							xg = obj.grdDST.a.vec + reshape(obj.income.netymat_broadcast(1,iyP,iyF,:), 1, []);
+							c_x_ii = obj.model.coninterp_mpc{iyP,iyF,iz}(xg(:));
+							c_x_ii = reshape(c_x_ii, [obj.p.nx_DST, 1, 1, 1, obj.p.nyT]);
+							c_x(:,iyP,iyF,iz,:) = c_x_ii;
+
+							c_x_ii_shock = obj.model.coninterp_mpc{iyP,iyF,iz}(xg(:) + shocksize);
+							c_x_ii_shock = reshape(c_x_ii_shock, [obj.p.nx_DST, 1, 1, 1, obj.p.nyT]);
+							c_x_shock(:,iyP,iyF,iz,:) = c_x_ii_shock;
+						end
+					end
+				end
+
+				apc_a_yT = c_x ./ obj.income.netymat_broadcast;
+				mpc_a_yT = (c_x_shock - c_x) / shocksize;
+
+				apc_a = reshape(apc_a_yT, [], obj.p.nyT) * obj.income.yTdist(:);
+				mpc_a = reshape(mpc_a_yT, [], obj.p.nyT) * obj.income.yTdist(:);
+
+				em1 = dot(obj.pmf(:), mpc_a(:));
+				ea1 = dot(obj.pmf(:), apc_a(:));
+
+				% Compute correlation
+				pmf_joint = obj.pmf(:) * reshape(obj.income.yTdist, 1, []);
+				integrand = (mpc_a_yT - em1) .* (apc_a_yT - ea1);
+				cov_m_a = dot(pmf_joint(:), integrand(:));
+
+				var_m = dot(pmf_joint(:), (mpc_a_yT(:) - em1(:)) .^ 2);
+				var_a = dot(pmf_joint(:), (apc_a_yT(:) - ea1(:)) .^ 2);
+				obj.mpc_apc_corr{ishock}.value = cov_m_a / sqrt(var_m * var_a);
+	        end
 		end
 
 		function add_decomps(obj, decomps)

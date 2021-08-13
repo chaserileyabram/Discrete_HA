@@ -9,12 +9,12 @@ close all;
 % SET OPTIONS
 % -------------------------------------------------------------------------
 % options
-runopts.calibrate = true; % wrap code in nonlinear solver
+runopts.calibrate = false; % wrap code in nonlinear solver
 runopts.fast = false; % very small asset and income grids for testing
 runopts.Simulate = false; % also solve distribution via simulation
 runopts.MakePlots = false;
 runopts.MPCs = true;
-runopts.MPCs_news = true;
+runopts.MPCs_news = false;
 runopts.MPCs_loan_and_loss = false;
 runopts.DeterministicMPCs = true; % must be on if decompositions are needed
 runopts.SaveOutput = true;
@@ -23,7 +23,7 @@ runopts.SaveOutput = true;
 runopts.mode = 'parameters'; % 'parameters'
 
 % select experiment (ignored when run on server)
-runopts.name_to_run = 'Beta5, pSwitch0, 0.05-0.1-0.7-0.1-0.05, pSpacing0.01'; % ''
+runopts.name_to_run = 'Quarterly'; % ''
 runopts.number = []; % []
 
 %% ------------------------------------------------------------------------
