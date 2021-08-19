@@ -41,17 +41,17 @@ function ptable =  param_tables(params, heterogeneity)
 	end
 
 	for ip = 1:np
-        variable_names{ip} = sprintf('Run%d', ip);
+        variable_names{ip} = sprintf('Run%d', params{ip}.index);
 
-        values{1,ip} = params(ip).name;
+        values{1,ip} = params{ip}.name;
 		for iv = 1:nv
 			pname = param_names{iv,1};
             if strcmp(pname, 'betagrid')
-                values{iv+1,ip} = num2str(heterogeneity(ip).(pname));
-            elseif isnumeric(params(ip).(pname))
-                values{iv+1,ip} = num2str(params(ip).(pname));
+                values{iv+1,ip} = num2str(heterogeneity{ip}.(pname));
+            elseif isnumeric(params{ip}.(pname))
+                values{iv+1,ip} = num2str(params{ip}.(pname));
             else
-                values{iv+1,ip} = params(ip).(pname);
+                values{iv+1,ip} = params{ip}.(pname);
             end
 		end
     end
