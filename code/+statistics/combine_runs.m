@@ -27,63 +27,55 @@ end
 addpath('code');
 
 % Read .mat files into a cell array
-ind = 0;
 for irun = 1:999
     fname = sprintf('variables%d.mat', irun);
     fpath = fullfile('output', fname);
-    if exist(fpath,'file')
-        ind = ind + 1;
 
-        S = load(fpath);
-        params(ind) = S.Sparams;
-        heterogeneity(ind) = S.heterogeneity;
-        stats{ind} = S.results.stats;
-        results(ind) = S.results;
+    if ~exist(fpath, 'file')
+        params{irun} = [];
+        heterogeneity{irun} = [];
+        stats{irun} = [];
+        continue
     end
-end
 
-if (ind == 0)
-    error('No mat files found')
+    S = load(fpath);
+    params{irun} = S.Sparams;
+    heterogeneity{irun} = S.heterogeneity;
+    stats{irun} = S.results.stats;
+
+    % Output tables
+    xlxname = sprintf('table%d.xlsx', irun);
+    savexlxpath = fullfile(outdir, xlxname);
+
+    % Comparison decomps
+    if params{irun}.freq == 1
+        baseind = 1;
+    else
+        baseind = 2;
+    end
+
+    cdecomp = statistics.ComparisonDecomp(params{baseind}, params{irun},...
+        stats{baseind}, stats{irun});
+
+    mpcs0 = reshape(stats{baseind}.mpcs(5).mpcs_1_t{1},...
+        params{baseind}.nx_DST, []);
+    mpcs1 = reshape(stats{irun}.mpcs(5).mpcs_1_t{1},...
+        params{irun}.nx_DST, []);
+    cdecomp.perform_decompositions(mpcs0, mpcs1);
+
+    table_out = tables.OutputTable(S.Sparams, S.results.stats, cdecomp.results);
+    writetable(table_out, savexlxpath, 'WriteRowNames', true);
 end
 
 % Parameters table
-ptable = tables.param_tables(params, heterogeneity);
-panelfpath = fullfile('output', 'params_table.xlsx');
+params_cleaned = cell(1,1);
+ip = 0;
+for ii = 1:numel(params)
+    if ~isempty(params{ii})
+        ip = ip + 1;
+        params_cleaned{ip} = params{ii};
+    end
+end
+ptable = tables.param_tables(params_cleaned, heterogeneity);
+panelfpath = fullfile(outdir, 'params_table.xlsx');
 writetable(ptable, panelfpath, 'WriteRowNames', true);
-
-% Stats table
-for ip = 1:ind
-    if params(ip).freq == 1
-        baseind = find(ismember({params.name}, {'Annual'}));
-    else
-        baseind = find(ismember({params.name}, {'Quarterly'}));
-    end
-
-    if isempty(baseind)
-        baseind = ip;
-    end
-
-    p0 = params(baseind);
-    p1 = params(ip);
-    stats0 = stats{baseind};
-    stats1 = stats{ip};
-    cdecomp = statistics.ComparisonDecomp(p0, p1, stats0, stats1);
-
-    mpcs0 = reshape(stats0.mpcs(5).mpcs_1_t{1},...
-        p0.nx_DST, []);
-    mpcs1 = reshape(stats1.mpcs(5).mpcs_1_t{1},...
-        p1.nx_DST, []);
-    cdecomp.perform_decompositions(mpcs0, mpcs1);
-    decomps_baseline(ip) = cdecomp.results;
-end
-
-ctimename = sprintf('continuous_time_baseline%d.mat', taskid);
-ctimepath = fullfile('input', ctimename);
-ctimeresults = tables.read_continuous_time_results(ctimepath);
-
-tables.TexTables.save_baselines_tables(params, results, outdir, 'ctimeresults', ctimeresults);
-
-tablenos = [1:4 -1:-1:-4];
-for ip = tablenos
-	tables.TexTables.save_experiment_table(params, results, decomps_baseline, outdir, ip);
-end

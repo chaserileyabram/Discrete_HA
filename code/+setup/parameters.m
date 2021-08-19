@@ -239,7 +239,7 @@ function [params, all_names] = parameters(runopts)
     params(end).beta0 = 0.960885729527277;
     params(end).descr = 'r in {-3,1,5}';
     params(end).tex_header = 'r';
-    params(end).tex_header_values.r = '-0.03, 0.01, 0.05';
+    params(end).tex_header_values.value = '-0.03, 0.01, 0.05';
     params(end).group = [3];
     params(end).colnums = [7];
 
@@ -347,7 +347,7 @@ function [params, all_names] = parameters(runopts)
         end
         params(end).descr = 'CRRA';
         params(end).tex_header = 'CRRA';
-        params(end).tex_header_values.riskaver = ira;
+        params(end).tex_header_values.value = ira;
 
         if ira == 0.5
             params(end).group = [2];
@@ -643,7 +643,83 @@ function [params, all_names] = parameters(runopts)
     params(end).tex_header_values.descr = 'quart no trans';
     params(end).group = [-3];
     params(end).colnums = [4];
-        
+    
+    %----------------------------------------------------------------------
+    % EXTRAS
+    %----------------------------------------------------------------------
+    ibw = 0.01;
+    name = sprintf('Beta5, pSwitch0, 0.05-0.1-0.7-0.1-0.05, pSpacing%g', ibw);
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).nbeta = 5;
+    params(end).betawidth = ibw;
+    params(end).prob_zswitch = 0;
+    params(end).beta0 = 0.956194383870642;
+    params(end).zdist_forced = [0.05, 0.1, 0.7, 0.1, 0.05];
+    params(end).descr = sprintf('p = %g, normal, spacing = %g', 0, ibw);
+    params(end).tex_header = '$\beta$ het.';
+    params(end).tex_header_values.pswitch = 0;
+    params(end).tex_header_values.spacing = ibw;
+    params(end).betaH0 = 1e-2;
+    
+    
+    for betaLfixed = 0.2:0.2:0.8
+        name = sprintf('betaL = %g, betaH calibrated', betaLfixed);
+        params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+        params(end).nbeta = 2;
+        params(end).prob_zswitch = 0;
+        params(end).beta0 = betaLfixed;
+        params(end).betaL = params(end).beta0;
+        params(end).betaHvariable = betaLfixed + 0.002;
+        params(end).zdist_forced = [0.15, 0.85];
+        params(end).descr = name;
+        params(end).tex_header = '$\beta$ het.';
+        params(end).tex_header_values.pswitch = 0;
+        params(end).tex_header_values.spacing = ibw;
+        params(end).betaH0 = 1e-2;
+        n = numel(params);
+        calibrations(n).variables = {'betaHvariable'};
+    end
+
+    name = '3pt CRRA = [exp(-2), exp(0), exp(2)], p = [0.15, 0.7, 0.15]';
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).risk_aver = exp([-2 0 2]);
+    params(end).zdist_forced = [0.15, 0.7, 0.15];
+    params(end).betaH0 = -1e-3;
+    params(end).descr = name;
+    params(end).tex_header = '$\beta$ het.';
+    params(end).tex_header_values.pswitch = 0;    
+
+
+    name = '2pt CRRA = [exp(-3), exp(0)], p = [0.15, 0.85]';
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).risk_aver = [exp(-3), exp(0)];
+    params(end).zdist_forced = [0.15, 0.85];
+    params(end).betaH0 = -1e-3;
+    params(end).descr = name;
+    params(end).tex_header = '$\beta$ het.';
+    params(end).tex_header_values.pswitch = 0;   
+
+    name = 'Permanent r het, r in {-1,1,3} p.a., p = [0.15, 0.7, 0.15]';
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).r = [-1, 1, 3] / 100;
+    params(end).betaH0 = 1e-3;
+    params(end).beta0 = 0.997149481985717;
+    params(end).zdist_forced = [0.15, 0.7, 0.15];
+    params(end).descr = 'r in {-1, 1, 3}';
+    params(end).tex_header = 'r';
+    params(end).tex_header_values.r = '-0.01, 0.01, 0.03';
+
+    name = 'Permanent r het, r in {-1,3} p.a., p = [0.15, 0.85]';
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).r = [-1, 3] / 100;
+    params(end).betaH0 = 1e-3;
+    params(end).beta0 = 0.973149481985717;
+    params(end).zdist_forced = [0.15, 0.85];
+    params(end).descr = 'r in {-1, 3}';
+    params(end).tex_header = 'r';
+    params(end).tex_header_values.r = '-0.01, 0.03';
+    
+    
     %----------------------------------------------------------------------
     % CALL METHODS/CHANGE SELECTED PARAMETERS, DO NOT CHANGE
     %----------------------------------------------------------------------
@@ -674,7 +750,8 @@ function [params, all_names] = parameters(runopts)
             calibration.target_names, calibration.target_values);
         heterogeneity = setup.Prefs_R_Heterogeneity(params);
 
-        if (params.nbeta > 1) && isequal(heterogeneity.ztrans, eye(params.nbeta))
+        if isempty(params.betaHvariable) && (params.nbeta > 1) ...
+                && isequal(heterogeneity.ztrans, eye(params.nbeta))
             % Adjust upper bound on beta if using fixed discount factor heterogeneity
             new_betaH = params.betaH - max(heterogeneity.betagrid0);
             params.set("betaH", new_betaH, true);

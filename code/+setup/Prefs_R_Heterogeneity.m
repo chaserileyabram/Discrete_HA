@@ -62,7 +62,9 @@ classdef Prefs_R_Heterogeneity < handle
 	    % Discount Factor Heterogeneity
 	    % --------------------------------------------------------
 		function initialize_discount_factor(obj, params)
-		    if isempty(params.beta_grid_forced)
+			if ~isempty(params.betaHvariable)
+				obj.betagrid = [params.beta0, params.betaHvariable];
+		    elseif isempty(params.beta_grid_forced)
 			    bw = params.betawidth;
 			    switch params.nbeta
 			        case 1

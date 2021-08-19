@@ -1,5 +1,5 @@
 
-function table_out = OutputTable(p, stats)
+function table_out = OutputTable(p, stats, comparison_decomps)
 	if ~isempty(p.tex_header)
         name = p.tex_header;
     else
@@ -11,8 +11,11 @@ function table_out = OutputTable(p, stats)
 	intro_stats = {...
 		descr
 		stats.mpcs(5).quarterly
+		stats.mpcs(5).quarterly_htm_biw
 		stats.mpcs(5).annual
+		stats.mpc_apc_corr{5}
 		stats.beta_A
+		stats.beta_A_effective
 		stats.mean_gross_y_annual
 		stats.std_log_gross_y_annual
 		stats.std_log_net_y_annual
@@ -99,6 +102,7 @@ function table_out = OutputTable(p, stats)
 		stats.mpcs(5).avg_s_t{1,2}
 		stats.mpcs(5).avg_s_t{1,3}
 		stats.mpcs(5).avg_s_t{1,4}
+		stats.mpcs(5).avg_s_t{1,5}
 	};
 
 	values = get_values(it_mpc_stats);
@@ -110,10 +114,10 @@ function table_out = OutputTable(p, stats)
 	paneltitle = struct('value', NaN, 'label', '____MPC, Out of News');
 	mpcnews_stats = {
 		paneltitle
+		stats.mpcs(5).avg_s_t{2,1}
+		stats.mpcs(5).avg_s_t{3,1}
+		stats.mpcs(5).avg_s_t{4,1}
 		stats.mpcs(5).avg_s_t{5,1}
-		stats.mpcs(5).avg_s_t{5,2}
-		stats.mpcs(5).avg_s_t{5,3}
-		stats.mpcs(5).avg_s_t{5,4}
 	};
 
 	values = get_values(mpcnews_stats);
@@ -160,7 +164,7 @@ function table_out = OutputTable(p, stats)
 	% HtM thresholds
 	for ithresh = 1:numel(p.abars)
 		threshold = p.abars(ithresh);
-		panel_name = sprintf('____For HtM threshold #%d', ithresh);
+		panel_name = sprintf('__ _For HtM threshold %g', threshold);
 		paneltitle = struct('value', NaN, 'label', panel_name);
 
 		new_entries = {
@@ -174,6 +178,42 @@ function table_out = OutputTable(p, stats)
 		rownames = get_names(new_entries);
 		new_rows = table(values, 'RowNames', rownames(:), 'VariableNames', {name});
 		table_out = [table_out; new_rows];
+	end
+
+	%% Comparison decomps
+	if nargin >= 3
+		paneltitle = struct('value', NaN, 'label',...
+		'____Decomps of E[MPC] wrt E[MPC_0], $500 shock');
+
+		comparison_decomp_header = {
+			paneltitle
+			comparison_decomps.Em1_less_Em0
+            comparison_decomps.term1
+            comparison_decomps.term2
+            comparison_decomps.term3
+	    };
+
+	    values = get_values(comparison_decomp_header);
+		rownames = get_names(comparison_decomp_header);
+		new_rows = table(values, 'RowNames', rownames(:), 'VariableNames', {name});
+		table_out = [table_out; new_rows];
+
+		for ithresh = 1:numel(p.abars)
+			threshold = p.abars(ithresh);
+			panel_name = sprintf('____Term 2 decomp for HtM threshold %g', threshold);
+			paneltitle = struct('value', NaN, 'label', panel_name);
+
+			new_entries = {
+				paneltitle
+                comparison_decomps.term2a(ithresh)
+                comparison_decomps.term2b(ithresh)
+			};
+
+			values = get_values(new_entries);
+			rownames = get_names(new_entries);
+			new_rows = table(values, 'RowNames', rownames(:), 'VariableNames', {name});
+			table_out = [table_out; new_rows];
+		end
 	end
 end
 

@@ -19,6 +19,7 @@ classdef TexTables
             elseif tableno == 3
                 labels = {'Beta Spacing', 'r', 'Switching Probability'};
                 vars = {'spacing', 'r', 'pswitch'};
+                decimals = [3, 2, 2];
             elseif tableno == 4
                 labels = {'Risk Aversion', 'IES', 'Temptation'};
                 vars = {'riskaver', 'ies', 'tempt'};
@@ -44,40 +45,72 @@ classdef TexTables
             end
         end
 
-        function save_baselines_tables(params_in, results, dirpath, varargin)
-            for tableno = [1, 2]
-	            for panelname = {'header', 'A', 'B', 'C', 'D'}
-	            	if (tableno == 1)
-	            		panelobj = tables.TexTables.table1panel(params_in, results, panelname{:}, varargin{:});
-	            	elseif (tableno == 2)
-	            		panelobj = tables.TexTables.table2panel(params_in, results, panelname{:}, varargin{:});
-	            	end
+        % function save_baselines_tables(params_in, results, dirpath, varargin)
+        %     for tableno = [1, 2]
+	       %      for panelname = {'header', 'A', 'B', 'C', 'D'}
+	       %      	if (tableno == 1)
+	       %      		panelobj = tables.TexTables.table1panel(params_in, results, panelname{:}, varargin{:});
+	       %      	elseif (tableno == 2)
+	       %      		panelobj = tables.TexTables.table2panel(params_in, results, panelname{:}, varargin{:});
+	       %      	end
 
-	            	if strcmp(panelname{:}, 'header')
-	            		panelfname = sprintf('table%d_header.xlsx', tableno);
-	            	else
-	            		panelfname = sprintf('table%d_panel%s.xlsx', tableno, panelname{:});
-	            	end
+	       %      	if strcmp(panelname{:}, 'header')
+	       %      		panelfname = sprintf('table%d_header.xlsx', tableno);
+	       %      	else
+	       %      		panelfname = sprintf('table%d_panel%s.xlsx', tableno, panelname{:});
+	       %      	end
 
-	            	panelfpath = fullfile(dirpath, panelfname);
-	            	writetable(panelobj, panelfpath, 'WriteRowNames', true);
-	            end
-	        end
-        end
+	       %      	panelfpath = fullfile(dirpath, panelfname);
+	       %      	writetable(panelobj, panelfpath, 'WriteRowNames', true);
+	       %      end
+	       %  end
+        % end
 
-        function save_experiment_table(params_in, results, comparison_decomps, dirpath, tableno)
-            header = tables.TexTables.experiment_table_header(params_in, results, tableno);
+        function save_experiment_table(params_in, stats, comparison_decomps, dirpath, tableno, varargin)
+            if ~isempty(varargin)
+                indices = filter_param_group(params_in, varargin{1}, tableno);
+            else
+                indices = filter_param_group(params_in, {}, tableno);
+            end
+
+            % Cell array of params
+            exp_params = cell(1, numel(indices));
+
+            % Cell array of stats
+            exp_stats = cell(1, numel(indices));
+
+            for ii = 1:numel(indices)
+                ip = indices(ii);
+
+                if ip > 0
+                    exp_params{ii} = params_in(ip);
+                    exp_stats{ii} = stats(ip);
+                else
+                    exp_params{ii} = ctimeresults{-ip}.p;
+                    exp_stats{ii} = ctimeresults{-ip}.stats;
+                end
+            end
+
+            header = tables.TexTables.experiment_table_header(exp_params, exp_stats, tableno);
             tabcapnum = tablecnum(tableno);
             headerpath = fullfile(dirpath, sprintf('table%s_header.xlsx', tabcapnum));
             writetable(header, headerpath, 'WriteRowNames', true);
 
-            for panelname = {'A', 'B', 'C', 'D'}
-            	if ismember(panelname{:}, {'A', 'A2'})
+            exists_ct_model = any(indices < 0);
+
+            if exists_ct_model
+                panelnames = {'B'};
+            else
+                panelnames = {'A', 'B'};
+            end
+
+            for panelname = panelnames
+                if ismember(panelname{:}, {'A', 'A2'})
             		panelobj = tables.TexTables.experiment_table_panel(...
-            			params_in, comparison_decomps, panelname{:}, tableno);
+            			exp_params, comparison_decomps, panelname{:}, tableno, varargin{:});
             	else
             		panelobj = tables.TexTables.experiment_table_panel(...
-            			params_in, results, panelname{:}, tableno);
+            			exp_params, exp_stats, panelname{:}, tableno, varargin{:});
             	end
             	panelfname = sprintf('table%s_panel%s.xlsx', tabcapnum, panelname{:});
             	panelfpath = fullfile(dirpath, panelfname);
@@ -85,155 +118,143 @@ classdef TexTables
             end
         end
 
-        function table_out = table1panel(params_in, results, panel, varargin)
-            switch panel
-	            case 'header'
-	            	get_stats = @(x) {
-	            		x.stats.mpcs(5).quarterly
-	                    x.stats.mpcs(5).annual
-                        x.stats.mpcs(5).quarterly_htm_biw
-                        x.stats.mpcs(5).quarterly_mean_a
-	                    x.stats.beta_A_effective
-	                  };
-	            case 'A'
-		            get_stats = @(x) {...
-		            	x.stats.mean_gross_y_annual
-                        x.stats.std_log_gross_y_annual
-                        x.stats.std_log_net_y_annual
-	                };
-	            case 'B'
-	            	get_stats = @(x) {...
-	            		x.stats.mean_a
-                        x.stats.median_a
-                        x.stats.sav0
-                        x.stats.constrained{1}
-                        x.stats.constrained_dollars{1}
-                        x.stats.constrained_dollars{2}
-                        x.stats.constrained_dollars{3}
-                        x.stats.constrained_dollars{4}
-                        x.stats.a_lt_ysixth
-                        x.stats.a_lt_ytwelfth
-                        x.stats.wpercentiles{1}
-                        x.stats.wpercentiles{2}
-                        x.stats.wpercentiles{4}
-                        x.stats.wpercentiles{5}
-                        x.stats.wpercentiles{7}
-                        x.stats.wpercentiles{8}
-                        x.stats.w_top10share
-                        x.stats.w_top1share
-                        x.stats.wgini
-                    };
-                case 'C'
-                	get_stats = @(x) {...
-                		x.stats.mpcs(4).annual
-                        x.stats.mpcs(6).annual
-                        x.stats.mpcs(4).quarterly
-                        x.stats.mpcs(6).quarterly
-                    };
-                case 'D'
-                	get_stats = @(x) {...
-                		x.stats.mpcs(1).annual
-                        x.stats.mpcs(2).annual
-                        x.stats.mpcs(3).annual
-                        x.stats.mpcs(1).quarterly
-                        x.stats.mpcs(2).quarterly
-                        x.stats.mpcs(3).quarterly
-                    };
-                otherwise
-                	error("Invalid panel entry")
-            end
+        % function table_out = table1panel(params_in, results, panel, varargin)
+        %     switch panel
+	       %      case 'header'
+	       %      	get_stats = @(x) {
+	       %      		x.stats.mpcs(5).quarterly
+	       %              x.stats.mpcs(5).annual
+        %                 x.stats.mpcs(5).quarterly_htm_biw
+        %                 x.stats.mpcs(5).quarterly_mean_a
+	       %              x.stats.beta_A_effective
+	       %            };
+	       %      case 'A'
+		      %       get_stats = @(x) {...
+		      %       	x.stats.mean_gross_y_annual
+        %                 x.stats.std_log_gross_y_annual
+        %                 x.stats.std_log_net_y_annual
+	       %          };
+	       %      case 'B'
+	       %      	get_stats = @(x) {...
+	       %      		x.stats.mean_a
+        %                 x.stats.median_a
+        %                 x.stats.sav0
+        %                 x.stats.constrained{1}
+        %                 x.stats.constrained_dollars{1}
+        %                 x.stats.constrained_dollars{2}
+        %                 x.stats.constrained_dollars{3}
+        %                 x.stats.constrained_dollars{4}
+        %                 x.stats.a_lt_ysixth
+        %                 x.stats.a_lt_ytwelfth
+        %                 x.stats.wpercentiles{1}
+        %                 x.stats.wpercentiles{2}
+        %                 x.stats.wpercentiles{4}
+        %                 x.stats.wpercentiles{5}
+        %                 x.stats.wpercentiles{7}
+        %                 x.stats.wpercentiles{8}
+        %                 x.stats.w_top10share
+        %                 x.stats.w_top1share
+        %                 x.stats.wgini
+        %             };
+        %         case 'C'
+        %         	get_stats = @(x) {...
+        %         		x.stats.mpcs(4).annual
+        %                 x.stats.mpcs(6).annual
+        %                 x.stats.mpcs(4).quarterly
+        %                 x.stats.mpcs(6).quarterly
+        %             };
+        %         case 'D'
+        %         	get_stats = @(x) {...
+        %         		x.stats.mpcs(1).annual
+        %                 x.stats.mpcs(2).annual
+        %                 x.stats.mpcs(3).annual
+        %                 x.stats.mpcs(1).quarterly
+        %                 x.stats.mpcs(2).quarterly
+        %                 x.stats.mpcs(3).quarterly
+        %             };
+        %         otherwise
+        %         	error("Invalid panel entry")
+        %     end
 
-            [stats_array, names_array] = stack_results(1, get_stats, params_in, results, varargin{:});
-            table_out = make_table(stats_array, names_array);
-        end
+        %     [stats_array, names_array] = stack_results(1, get_stats, params_in, results, varargin{:});
+        %     table_out = make_table(stats_array, names_array);
+        % end
 
-        function table_out = table2panel(params_in, results, panel, varargin)
-            decomp_norisk_get_stats_fn = @(x, k)  {
-            	x.stats.decomp_norisk.term2(k)
-                x.stats.decomp_norisk.term3(k)
-                x.stats.decomp_norisk.term4(k)
-            };
+        % function table_out = table2panel(params_in, results, panel, varargin)
+        %     decomp_norisk_get_stats_fn = @(x, k)  {
+        %     	x.stats.decomp_norisk.term2(k)
+        %         x.stats.decomp_norisk.term3(k)
+        %         x.stats.decomp_norisk.term4(k)
+        %     };
 
-            switch panel
-	            case 'header'
-	            	get_stats = @(x) {
-	            		x.stats.mpcs(5).oneperiod
-	            		x.stats.decomp_norisk.term1_pct
-	            	};
-	            case 'A'
-	                get_stats = @(x) decomp_norisk_get_stats_fn(x, 1);
-	            case 'B'
-	            	get_stats = @(x) decomp_norisk_get_stats_fn(x, 2);
-	           	case 'C'
-	           		get_stats = @(x) decomp_norisk_get_stats_fn(x, 3);
-	            case 'D'
-	            	get_stats = @(x) {
-	            		x.stats.decomp_RA.Em1_less_mRA
-	                    x.stats.decomp_RA.term1
-	                    x.stats.decomp_RA.term2
-	                    x.stats.decomp_RA.term3
-	                };
-	           	otherwise
-	           		error("Invalid panel selection")
-           	end
+        %     switch panel
+	       %      case 'header'
+	       %      	get_stats = @(x) {
+	       %      		x.stats.mpcs(5).oneperiod
+	       %      		x.stats.decomp_norisk.term1_pct
+	       %      	};
+	       %      case 'A'
+	       %          get_stats = @(x) decomp_norisk_get_stats_fn(x, 1);
+	       %      case 'B'
+	       %      	get_stats = @(x) decomp_norisk_get_stats_fn(x, 2);
+	       %     	case 'C'
+	       %     		get_stats = @(x) decomp_norisk_get_stats_fn(x, 3);
+	       %      case 'D'
+	       %      	get_stats = @(x) {
+	       %      		x.stats.decomp_RA.Em1_less_mRA
+	       %              x.stats.decomp_RA.term1
+	       %              x.stats.decomp_RA.term2
+	       %              x.stats.decomp_RA.term3
+	       %          };
+	       %     	otherwise
+	       %     		error("Invalid panel selection")
+        %    	end
 
-            [stats_array, names_array] = stack_results(2, get_stats, params_in, results, varargin{:});
-            table_out = make_table(stats_array, names_array);
-        end
+        %     [stats_array, names_array] = stack_results(2, get_stats, params_in, results, varargin{:});
+        %     table_out = make_table(stats_array, names_array);
+        % end
 
-        function table_out = experiment_table_header(params_in, results, tableno)
-            indices = filter_param_group(params_in, tableno);
-
-            import statistics.Statistics.sfill
-
+        function table_out = experiment_table_header(exp_params, exp_stats, tableno)
             [nhvars, hlabels, hvars, hdecimals] = tables.TexTables.get_header_variables(tableno);
 
-            all_annual = true;
-            for ip = indices
-                if params_in(ip).freq == 4
-                    all_annual = false;
-                    break
-                end
-            end
+            % all_annual = true;
+            % for ip = indices
+            %     if ip > 0
+            %         if params_in(ip).freq == 4
+            %             all_annual = false;
+            %             break
+            %         end
+            %     else
+            %         all_annual = false;
+            %         break;
+            %     end
+            % end
 
-            for ii = 1:numel(indices)
-                ip = indices(ii);
-                tex_vals = params_in(ip).tex_header_values;
+            for ii = numel(exp_stats)
+                params_obj = exp_params{ii};
+                stats_obj = exp_stats{ii};
+                tex_vals = params_obj.tex_header_values;
 
                 variable_values = {};
                 for ih = 1:nhvars
                     variable_values{end+1} = sfill(tex_vals.(hvars{ih}), hlabels{ih}, hdecimals(ih));
                 end
 
-                if all_annual
-                    statistics{ii} = {  results(ip).stats.mpcs(5).annual
-                                        results(ip).stats.beta_A_effective
-                                      };
-                else
-                    statistics{ii} = {  results(ip).stats.mpcs(5).quarterly
-                                        results(ip).stats.mpcs(5).annual
-                                        results(ip).stats.mpcs(5).quarterly_htm_biw
-                                        results(ip).stats.mpcs(5).quarterly_mean_a
-                                        results(ip).stats.beta_A_effective
-                                      };
-                end
+                statistics{ii} = {  stats_obj.mpcs(5).quarterly
+                                    stats_obj.mpcs(5).annual
+                                    stats_obj.mpcs(5).quarterly_htm_biw
+                                    stats_obj.a_lt_ysixth
+                                    stats_obj.stats.mpc_apc_corr{5}
+                                    stats_obj.stats.beta_A_effective
+                                  };
                 statistics{ii} = [variable_values(:); statistics{ii}];
-                names{ii} = params_in(ip).tex_header;
+                names{ii} = params_obj.tex_header;
             end
 
             table_out = make_table(statistics, names, 'experiment', true);
         end
 
-        function table_out = experiment_table_panel(params_in, variables, panel, tableno)
-            indices = filter_param_group(params_in, tableno);
-            all_annual = true;
-            for ip = indices
-                if params_in(ip).freq == 4
-                    all_annual = false;
-                    break
-                end
-            end
-
+        function table_out = experiment_table_panel(exp_params, exp_stats, panel, tableno, ctimeresults)
             switch panel
 	            case 'A'
 	            	get_stats = @(x) {
@@ -254,47 +275,46 @@ classdef TexTables
 	           		};
 	           	case 'B'
 	           		get_stats = @(x) {
-	           			x.stats.mean_a
-                        x.stats.median_a
-	                    x.stats.a_lt_ysixth
-	                    x.stats.constrained_dollars{1}
-	                    x.stats.constrained_dollars{2}
-	                    x.stats.constrained_dollars{3}
-	                    x.stats.constrained_dollars{4}
-	                    x.stats.constrained_dollars{5}
-	                    x.stats.w_top10share
-	                    x.stats.w_top1share
-	                    x.stats.wgini
+	           			x.mean_a
+                        x.median_a
+	                    x.constrained_dollars{1}
+	                    x.constrained_dollars{2}
+	                    x.constrained_dollars{3}
+	                    x.constrained_dollars{4}
+	                    x.constrained_dollars{5}
+	                    x.w_top10share
+	                    x.w_top1share
+	                    x.wgini
 	           		};
 	           	case 'C'
                     if all_annual
                         get_stats = @(x) {
-                            x.stats.mpcs(4).annual
-                            x.stats.mpcs(6).annual
+                            x.mpcs(4).annual
+                            x.mpcs(6).annual
                         };
                     else
     	           		get_stats = @(x) {
-    	           			x.stats.mpcs(4).quarterly
-                            x.stats.mpcs(6).quarterly
+    	           			x.mpcs(4).quarterly
+                            x.mpcs(6).quarterly
                         };
                     end
                 case 'D'
                     if all_annual
                         get_stats = @(x) {
-                            x.stats.mpcs(1).annual
-                            x.stats.mpcs(2).annual
-                            x.stats.mpcs(3).annual
+                            x.mpcs(1).annual
+                            x.mpcs(2).annual
+                            x.mpcs(3).annual
                         };
                     else
     	           		get_stats = @(x) {
-    	           			x.stats.mpcs(1).quarterly
-                            x.stats.mpcs(2).quarterly
-                            x.stats.mpcs(3).quarterly
+    	           			x.mpcs(1).quarterly
+                            x.mpcs(2).quarterly
+                            x.mpcs(3).quarterly
                         };
                     end
             end
 
-            [stats_array, names_array] = stack_results(tableno, get_stats, params_in, variables, 'experiment', true);
+            [stats_array, names_array] = stack_results(tableno, get_stats, exp_params, exp_stats, 'experiment', true);
             table_out = make_table(stats_array, names_array, 'experiment', true);
         end
     end 
@@ -308,7 +328,7 @@ function tnum = tablecnum(tableno)
     end
 end
 
-function indices = filter_param_group(params_in, tableno)
+function indices = filter_param_group(params_in, ctimeresults, tableno)
     ips = [];
     colnums = [];
     jj = 1;
@@ -320,17 +340,23 @@ function indices = filter_param_group(params_in, tableno)
         end
     end
 
+    for ii = 1:numel(ctimeresults)
+        if ismember(tableno, ctimeresults{ii}.p.group)
+            idx = find(tableno == ctimeresults{ii}.p.group);
+            colnums = [colnums, timeresults{ii}.p.colnums(idx)];
+            ips = [ips, -ii];
+        end
+    end
+
     sorted_mat = sortrows([colnums(:), ips(:)]);
     indices = reshape(sorted_mat(:,2), 1, []);
 end
 
-function [stats_array, names_array] = stack_results(tableno, fn_handle, params_in, main_results, varargin)
+function [stats_array, names_array] = stack_results(tableno, fn_handle, exp_params, exp_stats, varargin)
     parser = inputParser;
     addOptional(parser, 'experiment', false);
-    addOptional(parser, 'ctimeresults', []);
     parse(parser, varargin{:});
     experiment = parser.Results.experiment;
-    ctimeresults = parser.Results.ctimeresults;
 
     indices = filter_param_group(params_in, tableno);
     n = numel(indices);
@@ -339,30 +365,18 @@ function [stats_array, names_array] = stack_results(tableno, fn_handle, params_i
     for ii = 1:n
         ip = indices(ii);
 
-        idx = find(tableno == params_in(ip).group);
-        colnum = params_in(ip).colnums(idx);
-
         // if tableno == -2
         //     names_array{1} = 'Baseline';
         //     stats_array{1} = fn_handle(main_results(2));
         //     colnum = colnum+1;
         // end
 
-        stats_array{colnum} = fn_handle(main_results(ip));
+        stats_array{ii} = fn_handle(exp_stats{ip});
 
-        if experiment & ~isempty(params_in(ip).tex_header)
-            names_array{colnum} = params_in(ip).tex_header;
+        if experiment & ~isempty(exp_params{ip}.tex_header)
+            names_array{colnum} = exp_params{ip}.tex_header;
         else
-            names_array{colnum} = params_in(ip).name;
-        end
-    end
-
-    if ~isempty(ctimeresults)
-        if ismember(tableno, ctimeresults.p.group)
-            idx = find(tableno == ctimeresults.p.group);
-            colnum = ctimeresults.p.colnums(idx);
-            stats_array{colnum} = fn_handle(ctimeresults);
-            names_array{colnum} = 'Continuous Time';
+            names_array{colnum} = exp_params{ip}.name;
         end
     end
 end
