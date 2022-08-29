@@ -86,8 +86,8 @@ classdef Statistics < handle
 			obj.mpcs = mpcs_obj.mpcs;
 
 			% Corr(MPC, APC)
-			obj.mpc_apc_corr = cell(1, 6);
-			for ishock = 1:6
+			obj.mpc_apc_corr = cell(1, 7);
+			for ishock = 1:7
 				shock_label = obj.p.shocks_labels{ishock};
 		    	shock_tex = split(obj.p.shocks_labels{ishock}, "$");
 		    	shock_label_tex = sprintf('%s\\$%s', shock_tex{1}, shock_tex{2});

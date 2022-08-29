@@ -90,7 +90,7 @@ function model = solve_EGP(p, grids, heterogeneity,...
             tempt_expr, svecs_bc);
      
         % c(s)
-        con_s = aux.u1inv(heterogeneity.risk_aver_broadcast, muc_s);
+        con_s = aux.u1inv(p, heterogeneity.risk_aver_broadcast, muc_s);
         
         % x(s) = s + stax + c(s)
         x_s = svecs_bc + svecs_bc_tax + con_s;
@@ -207,8 +207,8 @@ function muc_s = get_marginal_util_cons(...
     savtaxrate = (1 + p.savtax .* (svecs_bc >= p.savtaxthresh));
 
 	% First get marginal utility of consumption next period
-	muc_c = aux.utility1(risk_aver_bc, c_xp);
-    muc_tempt = -tempt_expr .* aux.utility1(risk_aver_bc, xp_s+1e-7);
+	muc_c = aux.utility1(p, risk_aver_bc, c_xp);
+    muc_tempt = -tempt_expr .* aux.utility1(p, risk_aver_bc, xp_s+1e-7);
     mucnext = reshape(muc_c(:) + muc_tempt(:), [], p.nyT);
 
     % Integrate
@@ -231,17 +231,17 @@ function sav = get_saving_policy(p, grids, x_s, nextmpcshock, R_bc,...
     sav = zeros(size(x_s));
     xstar = zeros(p.nyP,p.nyF,p.nz);
     for ib  = 1:p.nz
-    for iyF = 1:p.nyF
-    for iyP = 1:p.nyP
-        adj = xmat(:,iyP,iyF,ib) < x_s(1,iyP,iyF,ib);
-        sav(adj,iyP,iyF,ib) = svecs_bc(1,1,1,ib);
+        for iyF = 1:p.nyF
+            for iyP = 1:p.nyP
+                adj = xmat(:,iyP,iyF,ib) < x_s(1,iyP,iyF,ib);
+                sav(adj,iyP,iyF,ib) = svecs_bc(1,1,1,ib);
 
-        savinterp = griddedInterpolant(x_s(:,iyP,iyF,ib),...
-            svecs_bc(:,1,1,ib), 'linear');
+                savinterp = griddedInterpolant(x_s(:,iyP,iyF,ib),...
+                    svecs_bc(:,1,1,ib), 'linear');
 
-        sav(~adj,iyP,iyF,ib) = savinterp(...
-            xmat(~adj,iyP,iyF,ib));
-    end
-    end
+                sav(~adj,iyP,iyF,ib) = savinterp(...
+                    xmat(~adj,iyP,iyF,ib));
+            end
+        end
     end
 end

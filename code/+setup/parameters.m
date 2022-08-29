@@ -719,6 +719,145 @@ function [params, all_names] = parameters(runopts)
     params(end).tex_header = 'r';
     params(end).tex_header_values.r = '-0.01, 0.03';
     
+    % Quarterly baseline quad_b = 1
+    params(end+1) = setup.Params(4, 'Quarterly quad_b = 1', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, b = 1';
+    params(end).tex_header = 'Quarterly';
+    params(end).quad_b = 1.0;
+    
+    % Quarterly baseline quad_b = 0.5
+    params(end+1) = setup.Params(4, 'Quarterly quad_b = 0.5', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, b = 0.5';
+    params(end).tex_header = 'Quarterly';
+    params(end).quad_b = 0.5;
+    
+    % Quarterly baseline quad_b = 0.25
+    params(end+1) = setup.Params(4, 'Quarterly quad_b = 0.25', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, b = 0.25';
+    params(end).tex_header = 'Quarterly';
+    params(end).quad_b = 0.25;
+    
+    % Quarterly baseline quad_b = 0.1
+    params(end+1) = setup.Params(4, 'Quarterly quad_b = 0.1', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, b = 0.1';
+    params(end).tex_header = 'Quarterly';
+    params(end).quad_b = 0.1;
+    
+    % Quarterly baseline quad_b = 0.05
+    params(end+1) = setup.Params(4, 'Quarterly quad_b = 0.05', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, b = 0.05';
+    params(end).tex_header = 'Quarterly';
+    params(end).quad_b = 0.05;
+    
+    % Quarterly baseline exp_a = 2
+    params(end+1) = setup.Params(4, 'Quarterly exp_a = 2', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, exp_a = 2';
+    params(end).tex_header = 'Quarterly';
+    params(end).exp_a = 2;
+    
+    % Quarterly baseline exp_a = 1
+    params(end+1) = setup.Params(4, 'Quarterly exp_a = 1', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, exp_a = 1';
+    params(end).tex_header = 'Quarterly';
+    params(end).exp_a = 1;
+    
+    % Quarterly baseline exp_a = 0.5
+    params(end+1) = setup.Params(4, 'Quarterly exp_a = 0.5', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, exp_a = 0.5';
+    params(end).tex_header = 'Quarterly';
+    params(end).exp_a = 0.5;
+    
+    % Quarterly baseline exp_a = 0.2
+    params(end+1) = setup.Params(4, 'Quarterly exp_a = 0.2', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, exp_a = 0.2';
+    params(end).tex_header = 'Quarterly';
+    params(end).exp_a = 0.2;
+    
+    % Quarterly baseline exp_a = 0.1
+    params(end+1) = setup.Params(4, 'Quarterly exp_a = 0.1', quarterly_b_params);
+%     params(end).beta0 = 0.984363510593659;
+    params(end).beta0 = 1.01;
+    params(end).betaH0 = 2e-3;
+%     params(end).group =     [1 2 3 4 5 6 7 8 -1 -2 -4];
+%     params(end).colnums =   [1 1 1 1 1 1 1 1  1  1  1];
+    params(end).descr = 'Baseline, exp_a = 0.1';
+    params(end).tex_header = 'Quarterly';
+    params(end).exp_a = 0.1;
+    
+    % E[a] = 0.56, quad_b = 1
+    name = sprintf('E[a] = %g, quad_b = 1', 0.5617);
+    params(end+1) = setup.Params(4, name, quarterly_b_params);
+    params(end).group = [1];
+    params(end).colnums = [4];
+    params(end).descr = {'Calibration to total wealth, E[a] = 0.5617, b = 1'};
+    params(end).tex_header = 'E[a]';
+    params(end).tex_header_values.value = 0.5617;
+    params(end).betaH0 = 2e-3;
+    params(end).quad_b = 1.0;
+    n = numel(params);
+    calibrations(n).target_names = {'mean_a'};
+    calibrations(n).target_values = [0.5617];
+    
+    % fixed beta het w/normal, quad_b = 1
+    ibw = 0.01;
+    name = sprintf('Beta5, pSwitch0 (normal), pSpacing%g', ibw);
+    params(end+1) = setup.Params(ifreq, name, quarterly_b_params);
+    params(end).nbeta = 5;
+    params(end).betawidth = ibw;
+    params(end).prob_zswitch = 0;
+    params(end).beta0 = 0.956194383870642;
+    params(end).quad_b = 1.0;
+    params(end).zdist_forced = [0.1, 0.2, 0.4, 0.2, 0.1];
+    params(end).descr = sprintf('p = %g, normal, spacing = %g, b = 1', 0, ibw);
+    params(end).tex_header = '$\beta$ het.';
+    params(end).tex_header_values.pswitch = 0;
+    params(end).tex_header_values.spacing = ibw;
+    params(end).betaH0 = 1e-2;
     
     %----------------------------------------------------------------------
     % CALL METHODS/CHANGE SELECTED PARAMETERS, DO NOT CHANGE

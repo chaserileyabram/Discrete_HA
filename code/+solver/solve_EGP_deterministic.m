@@ -34,8 +34,8 @@ function norisk = solve_EGP_deterministic(p, grids,...
         
         conlast = con;
 
-        muc_next = aux.utility1(risk_aver_bc, conlast);
-        tempt_next = -tempt_bc .* aux.utility1(...
+        muc_next = aux.utility1(p, risk_aver_bc, conlast);
+        tempt_next = -tempt_bc .* aux.utility1(p,...
             risk_aver_bc, grids.x.matrix_norisk);
         beq_next = aux.utility_bequests1(p.bequest_curv, p.bequest_weight,...
             p.bequest_luxury, sgrid_bc);
@@ -46,7 +46,7 @@ function norisk = solve_EGP_deterministic(p, grids,...
         muc_today = (1 - p.dieprob) * emuc_live ./ msavtaxrate ...
             + p.dieprob .* beq_next;
 
-        con_today = aux.u1inv(risk_aver_bc, muc_today);
+        con_today = aux.u1inv(p, risk_aver_bc, muc_today);
         
         cash1 = con_today + sgrid_bc + sgrid_tax;
         

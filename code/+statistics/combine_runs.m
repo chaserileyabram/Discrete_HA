@@ -5,7 +5,7 @@
 clear
 
 [~, currdir] = fileparts(pwd());
-if ~strcmp(currdir, 'Discrete_HA-brian-fork')
+if ~strcmp(currdir, 'Discrete_HA')
     msg = 'The user must cd into the Discrete_HA directory';
     bad_dir = MException('Discrete_HA:master', msg);
     throw(bad_dir);

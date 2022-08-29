@@ -74,8 +74,8 @@ function results = main(p)
     % MPCs FOR MODEL WITHOUT INCOME RISK
     % ---------------------------------------------------------------------
     % Fill deterministic model MPCs with NaNs
-    results.norisk.mpcs1_a_direct = cell(1,6);
-    for im = 1:6
+    results.norisk.mpcs1_a_direct = cell(1,7);
+    for im = 1:7
         results.norisk.mpcs1_a_direct{im} = NaN;
     end
 
@@ -117,8 +117,8 @@ function results = main(p)
     
     % mpcmodels{ishock,tlshock} stores the policy functions associated with the case
     % where the shock occurs in (tlshock - 1) periods after the current period
-    mpcmodels = cell(6, maxT);
-    for ishock = 1:6
+    mpcmodels = cell(7, maxT);
+    for ishock = 1:7
         % policy functions are the same as baseline when shock is received in
         % the current period
         mpcmodels{ishock,1} = basemodel;

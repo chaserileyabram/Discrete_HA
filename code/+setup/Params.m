@@ -45,7 +45,7 @@ classdef Params < handle
         Nmpcsim = 2e5; % for optional MPC simulation
 
         % MPC shock sizes
-        shocks_dollars = [-1, -500, -5000, 1, 500, 5000];
+        shocks_dollars = [-1, -500, -5000, 1, 500, 5000, 10000];
         shocks;
         shocks_labels;
         
@@ -63,9 +63,11 @@ classdef Params < handle
         abars = [0, 0.01, 0.05];
 
         % Cash on hand / savings grid parameters
-        nx = 250;
+%         nx = 250;
+        nx = 50;
         nx_neg = 0;
-        nx_DST = 250;
+%         nx_DST = 250;
+        nx_DST = 50;
         nx_neg_DST = 0;
         xmax = 500;
         xgrid_par = 0.1; % 1 for linear, 0 for L-shaped
@@ -101,6 +103,8 @@ classdef Params < handle
         risk_aver = 1;
     	beta0 = 0.98;
     	temptation = 0;
+        quad_b = 0;
+        exp_a = 0;
 
         % Bounds on beta (used when calibrating)
     	betaL = 0.80; % lower bound
@@ -125,6 +129,8 @@ classdef Params < handle
         nyF = 1;
         sd_logyF = 0;
         ResetIncomeUponDeath = true;
+        % Percent of income shock for MPC
+        income_perc = 0.01
         
         % Taxation
         labtaxlow = 0; % proportional tax

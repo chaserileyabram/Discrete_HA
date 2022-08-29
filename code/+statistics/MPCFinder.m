@@ -56,7 +56,7 @@ classdef MPCFinder < handle
 			obj.r_mat = heterogeneity.r_broadcast;
 			obj.het = heterogeneity;
 
-		    for ishock = 1:6
+		    for ishock = 1:7
 		    	shock_label = p.shocks_labels{ishock};
 		    	shock_tex = split(p.shocks_labels{ishock}, "$");
 		    	shock_label_tex = sprintf('%s\\$%s', shock_tex{1}, shock_tex{2});
@@ -139,7 +139,7 @@ classdef MPCFinder < handle
 			fprintf('    Computing baseline consumption...\n')
 			obj.get_baseline_consumption();
 
-			for ishock = 1:6
+			for ishock = 1:7
 				shock_size = p.shocks(ishock);
 				if (p.MPCs_news == 0) || (p.EpsteinZin == 1)
 					shockperiods = 1;
@@ -210,9 +210,15 @@ classdef MPCFinder < handle
 				end
 
 				% cash-on-hand
-				transfer_it = (it == shockperiod) * shock ...
-					+ (it == 1) * immediate_shock;
-				x_mpc = obj.xgrid_yT + transfer_it;
+                if shock == 0
+%                     transfer_it = (it == shockperiod) * shock ...
+%                         + (it == 1) * immediate_shock;
+                    x_mpc = obj.xgrid_yT + obj.p.income_perc .* reshape(obj.income.ymat, [1, obj.p.nyP, 1, 1, obj.p.nyT]);
+                else
+                    transfer_it = (it == shockperiod) * shock ...
+                        + (it == 1) * immediate_shock;
+                    x_mpc = obj.xgrid_yT + transfer_it;
+                end
 
 	            % consumption choice given the shock
 	            imodel = shockperiod - it + 1;
@@ -225,8 +231,13 @@ classdef MPCFinder < handle
 	            Econ = trans_1_t * con;
 	            Econ_base = obj.basemodel.statetrans^(it-1) * obj.con_baseline;
 
-	            mpcshock = immediate_shock + (immediate_shock == 0) * shock;
-	            mpcs = (Econ - Econ_base) / mpcshock;
+                if shock == 0
+                    mpcshock = obj.p.income_perc .* reshape(obj.income.ymat, [1, obj.p.nyP, 1, 1, obj.p.nyT]);
+                    mpcs = (Econ - Econ_base) / mpcshock;
+                else
+                    mpcshock = immediate_shock + (immediate_shock == 0) * shock;
+                    mpcs = (Econ - Econ_base) / mpcshock;
+                end
 
 	            loc_pos = mpcs(:) > 0;
                 dist_vec = obj.basemodel.pmf(:);
@@ -369,7 +380,7 @@ classdef MPCFinder < handle
 		end
 
 		function compute_cumulative_mpcs(obj)
-			for ishock = 1:6
+			for ishock = 1:7
 				vec_1_1to4 = [cell2mat(obj.mpcs(ishock).avg_s_t(1,1:4)).value];
 				obj.mpcs(ishock).avg_1_1to4 = sum(vec_1_1to4);
 				vec_5_1to4 = [cell2mat(obj.mpcs(ishock).avg_s_t(5,1:4)).value];
